@@ -1,6 +1,9 @@
 # 深度学习
 深度学习的核心来自神经网络(可以看做一门语言),它是一个非常灵活的框架(组合神经元来表达问题的先验知识).   
 
+#### **跳转**  
+[数据](#数据)
+
 ![AI地图](./img/AIMap.png)  
 
 #### 机器学习/深度学习 的应用  
@@ -26,7 +29,7 @@ pip install d2l torch torchvision
 [d2l资源包下载点击此处](https://zh-v2.d2l.ai/d2l-zh.zip) 
 
 
-#### 数据
+## 数据
 #### n维度数组是机器学习和神经网络的主要数据结构  
 
 > 0-d(标量)(一个类别)   
@@ -71,4 +74,4 @@ type(A), type(B)
 ```
 
 ---
-## [这里是待学链接](https://www.bilibili.com/video/BV1CV411Y7i4?p=1&vd_source=5a8651962259df7b14781b1d0370c6a0)
+## [这里是待学链接](https://www.bilibili.com/video/BV1eK4y1U7Qy/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
