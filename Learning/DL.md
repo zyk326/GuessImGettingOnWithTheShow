@@ -38,7 +38,7 @@ pip install d2l torch torchvision
 
 创建数组需要三个东西 : **形状 + 数据类型 + 元素值**
 
-[这里是数据代码](../Code/data.py)
+[这里是数据代码](../Code/data.ipynb)
 
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1CV411Y7i4?p=1&vd_source=5a8651962259df7b14781b1d0370c6a0)
