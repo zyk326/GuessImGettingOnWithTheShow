@@ -13,3 +13,29 @@
 * 无人驾驶
 >案例研究：广告点击  
 特征提取（*广告主；产品描述；产品图片*） => 模型（训练数据【过去广告展现和用户点击】 -> 特征和用户点击 -> 模型） => 点击率预测
+
+### 环境安装
+> 前置conda  
+
+```
+conda env remove d2l-zh  
+conda create -n d2l-zh python==3.8
+conda activate d2l-zh  
+pip install d2l torch torchvision  
+```
+[d2l资源包下载点击此处](https://zh-v2.d2l.ai/d2l-zh.zip) 
+
+
+#### 数据
+#### n维度数组是机器学习和神经网络的主要数据结构  
+
+> 0-d(标量)(一个类别)   
+> 1-d(向量)(一个特征向量)  
+> 2-d(矩阵)(一个样本-特征矩阵)(行是样本,列是特征)  
+> 3-d **RGB图片** (宽x高x通道)  
+> 4-d **一个RGB图片的批量** (批量大小x宽x高x通道)  
+> 5-d **视频批量** (批量大小x时间x宽x高x通道)
+
+
+---
+## [这里是待学链接](https://www.bilibili.com/video/BV1CV411Y7i4?p=1&vd_source=5a8651962259df7b14781b1d0370c6a0)
