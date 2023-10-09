@@ -94,5 +94,9 @@ type(A), type(B)
 
 ![向量乘以向量](./img/vector%20puls%20vector%20true.png)
 
+## 自动求导
+
+![反向传递](./img/Back-propagation.png)
+
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1eK4y1U7Qy/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
