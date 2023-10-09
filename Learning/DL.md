@@ -82,7 +82,7 @@ type(A), type(B)
 
 > 标量的shpe是空的
 
-**[这里是代码预览](../Code/Preview/Linear%20algebra.md)**  
+**[这里是代码预览](../Code/Preview/Linear-algebra.md)**  
 
 ## 矩阵计算
 
