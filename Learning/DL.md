@@ -2,7 +2,7 @@
 深度学习的核心来自神经网络(可以看做一门语言),它是一个非常灵活的框架(组合神经元来表达问题的先验知识).   
 
 #### **跳转**  
-[数据](#数据) [待学链接](#这里是待学链接)
+[数据](#数据) [待学链接](#这里是待学链接) [线性代数](#线性代数)
 
 ![AI地图](./img/AIMap.png)  
 
@@ -72,6 +72,16 @@ B = torch.tensor(A)
 type(A), type(B)
 =>(numpy.ndarray, torch.Tensor)
 ```
+
+## 线性代数
+
+矩阵可以把向量扭曲,**方向不会被矩阵改变的向量是特征向量**  
+
+![矩阵扭曲向量](./img/Matrix%20distortion.png)
+
+> 标量的shpe是空的
+
+**[这里是代码预览](../Code/Preview/Linear%20algebra.md)**  
 
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1eK4y1U7Qy/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
