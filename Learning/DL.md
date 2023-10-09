@@ -98,5 +98,7 @@ type(A), type(B)
 
 ![反向传递](./img/Back-propagation.png)
 
+**[这里是代码预览](../Code/Preview/Automatic-guide.md)** 
+
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1eK4y1U7Qy/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
