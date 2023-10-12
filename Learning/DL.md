@@ -128,5 +128,34 @@ $**
 
 **[!!!这里是代码预览](../Code/Preview/Linear-regression.md)**  
 
+## Softmax回归+损失函数+图片分类数据集
+
+回归的特点:  
+单连续数值输出  
+自然区间R  
+跟真实值的区别作为损失  
+
+分类的特点:   
+通常多个输出  
+输出i是预测为第i类的置信度  
+
+回归==多类的分类问题;分类的类别编码可以是one-hot
+
+softmax可以这么理解:  
+
+**$\hat{y}=softmax(o)$**  
+
+**$\hat{y_i}=\frac{exp(o_i)}{\Sigma_k exp(o_k)}$**  
+
+这两个东西可以做区别,也就是这俩是一个东西.下面是对类别$o_i$做指数之后得到的一个整数概率.上面是真实的对o作用softmax之后的概率,上面的o是一个one-hot的向量.  
+**softmax让每个类的置信度是一个概率.**
+
+而衡量两个概率间的差别用交叉熵来做.**$H(p,q) = \underset{i}{\Sigma}-p_i log(q_i)$**  
+对于分类问题:**$l(y,\hat{y})=-\underset{i}{\Sigma}y_i log\hat{y_i}$**,由于$y_i$是one-hot的,所以公式 **$l(y,\hat{y})=-log\hat{y_y}$**
+
+损失函数用于衡量预测值和真实值之间的区别.
+
+一般,读数据的时间要比训练时间要快很多才可以.
+
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1K64y1Q7wu/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
