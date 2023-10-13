@@ -157,5 +157,7 @@ softmax可以这么理解:
 
 一般,读数据的时间要比训练时间要快很多才可以.
 
+**[这里是代码预览](../Code/Preview/Image-classification.md)**  
+
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1K64y1Q7wu/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
