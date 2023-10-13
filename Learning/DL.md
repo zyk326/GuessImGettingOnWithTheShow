@@ -177,5 +177,10 @@ $
 
 ![感知机](./img/Perceptron.png)
 
+看图可知,多个输入,单个输出,可以做二分类问题.  
+> 感知机等价于使用批量大小为1的梯度下降,并使用这个损失函数:    
+
+![感知机损失函数](./img/Perceptron-loss.png)
+
 ---
-## [这里是待学链接](https://www.bilibili.com/video/BV1K64y1Q7wu/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0)
+## [这里是待学链接](https://www.bilibili.com/video/BV1hh411U7gn/?p=2&spm_id_from=pageDriver&vd_source=5a8651962259df7b14781b1d0370c6a0)
