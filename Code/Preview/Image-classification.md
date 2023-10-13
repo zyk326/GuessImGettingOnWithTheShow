@@ -304,4 +304,5 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):
 
 
 num_epochs = 10
-train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)```
+train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
+```
