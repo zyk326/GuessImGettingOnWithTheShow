@@ -105,9 +105,7 @@ type(A), type(B)
 **线性模型可以看做是单层的神经网络**  
 
 平方损失:&emsp;
-$
-\iota(y,\hat{y}) = \frac{1}{2}(y-\hat{y})^2
-$
+$$\iota(y,\hat{y}) = \frac{1}{2}(y-\hat{y})^2$$
 
 线性回归是对n维输入的加权,外加偏差.  
 使用平方损失来衡量预测值和真实值的差异.  
@@ -143,29 +141,29 @@ $
 
 softmax可以这么理解:  
 
-$
+$$
 \hat{y}=softmax(o)
-$  
+$$  
 
-$
+$$
 \hat{y_i}=\frac{exp(o_i)}{\Sigma_k exp(o_k)}
-$  
+$$  
 
 这两个东西可以做区别,也就是这俩是一个东西.下面是对类别$o_i$做指数之后得到的一个整数概率.上面是真实的对o作用softmax之后的概率,上面的o是一个one-hot的向量.  
 **softmax让每个类的置信度是一个概率.**
 
 而衡量两个概率间的差别用交叉熵来做.
-$
+$$
 H(p,q) = \underset{i}{\Sigma}-p_i log(q_i)
-$  
+$$  
 对于分类问题:
-$
+$$
 l(y,\hat{y})=-\underset{i}{\Sigma}y_i log\hat{y_i}
-$
+$$
 ,由于$y_i$是one-hot的,所以公式 
-$
+$$
 l(y,\hat{y})=-log\hat{y_y}
-$
+$$
 
 损失函数用于衡量预测值和真实值之间的区别.
 
