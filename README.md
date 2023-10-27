@@ -13,3 +13,5 @@
 [潜规则_中国历史上的真实游戏](Learning/Hidden_rules.md)
 
 [Cubase](Learning/Cubase.md)
+
+[Those Happenings of the Ming Dynasty](Learning/Those%20Happenings%20of%20the%20Ming%20Dynasty.md)
