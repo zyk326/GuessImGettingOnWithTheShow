@@ -14,6 +14,6 @@
 
 [Cubase-进化为编曲人的伟大计划](Learning/Cubase.md)
 
-[Those Happenings of the Ming Dynasty](Learning/Those%20Happenings%20of%20the%20Ming%20Dynasty.md)
+[Those Happenings of the Ming Dynasty](Learning/Those_Happenings_of_the_Ming_Dynasty.md)
 
 [搜索技术-变强的外挂](Learning/Search.md)
