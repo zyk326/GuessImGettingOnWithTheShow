@@ -12,6 +12,8 @@
 
 [潜规则_中国历史上的真实游戏](Learning/Hidden_rules.md)
 
-[Cubase](Learning/Cubase.md)
+[Cubase-进化为编曲人的伟大计划](Learning/Cubase.md)
 
 [Those Happenings of the Ming Dynasty](Learning/Those%20Happenings%20of%20the%20Ming%20Dynasty.md)
+
+[搜索技术-变强的外挂]()
