@@ -16,4 +16,4 @@
 
 [Those Happenings of the Ming Dynasty](Learning/Those%20Happenings%20of%20the%20Ming%20Dynasty.md)
 
-[搜索技术-变强的外挂]()
+[搜索技术-变强的外挂](Learning/Search.md)
