@@ -74,4 +74,29 @@ intext:林俊杰豆浆油条 site:youtube.com
 > 使用[sci-hub](https://sci-hub.se/)  
 
 ### 如果你的内容主要承载在电子书上:
-> 使用[鸠摩搜书](https://www.jiumodiary.com/)
+> 使用[鸠摩搜书](https://www.jiumodiary.com/)  
+> 英文的用google搜索best free ebook download sites, 找网站,一般用[z-lib](https://z-lib.is/) [manybooks](https://manybooks.net/) [pdfbooksworld](https://www.pdfbooksworld.com/)  
+
+
+# 不懂就问是小孩子,成年人不懂就搜  
+### 一些tip
+* youtube的视频在网址**www.**后面加**9x**就可以直接下载.  
+
+* 全网通杀的下载网站:[save.tube](https://save.tube/en35/)  
+
+* 有版权的图片网站:[gettyimages](https://www.gettyimages.com/)  
+
+* ppt模版在线网站:[canva](https://www.canva.com/) 
+
+* 寻找软件的替代软甲:[alternativeto](https://alternativeto.net/)
+
+#### 使用工具的顺序是:
+**在线工具 -> 软件 -> 插件**  
+**google强大公式: xxx需求 + online**
+## google的最强搜索公式:
+**best sites for /free loyalty video/free gif/free bgm**  
+
+## 搜索心法: 内事不决搜微信,外事不决问谷歌
+
+![神功已成](./img-tree/Search/final.png)
+> 神功已成
