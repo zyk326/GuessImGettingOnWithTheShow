@@ -29,3 +29,49 @@ intitle:芭乐情歌过时了
 ```
 allintitle:林俊杰 情歌
 ```
+
+* 内容关键字搜索:加**intext**,例如搜索文章内容有林俊杰跑调  
+```
+intext:林俊杰跑调
+```
+
+* 网址关键字搜索:加**inurl**, 例如在youtube上搜索林俊杰跑调  
+```
+intext:林俊杰跑调 inurl:youtube 
+```
+
+* 限定内容来源网站:加**site:xxx.com**,即site:后加上完整的域名  
+```
+intext:林俊杰豆浆油条 site:youtube.com
+```
+
+* 限定图片尺寸:加**imagesize:**,例如搜索林俊杰图片3840x2160的图片  
+```
+林俊杰 imagesize:3840x2160
+```  
+
+* 限定文件格式:加**filetype:**,例如搜索母婴行业2023的研究报告  
+```
+母婴行业2023 filetype:pdf
+```
+
+![搜索方式](./img-tree/Search/searchways.png)
+
+### 如果你的内容主要承载在网页上:  
+> 去[google](https://www.google.com/?hl=zh_CN)
+> [搜狗](https://www.sogou.com/)搜索 
+> 微信搜一搜
+> 垂类社群
+> 聚合网址找(如[程序员导航](http://www.cxysite.com/))
+
+### 如果你的内容主要承载在文档上:  
+> 使用google的搜索语法:filetype,限定pdf
+> inurl搜索,限定报告网站域名  
+> 去找类似的网站,用[similarsites](https://cn.similarsites.com/)查, 可以快速聚合头部网站
+
+### 如果你的内容主要承载在论文上:
+> 使用[谷歌学术](https://scholar.google.com/schhp?hl=zh-CN&as_sdt=0,5)
+> 使用[sci-hub](https://sci-hub.se/)  
+
+### 如果你的内容主要承载在电子书上:
+> 使用[鸠摩搜书](https://www.jiumodiary.com/)
