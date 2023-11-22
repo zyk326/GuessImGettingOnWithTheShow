@@ -17,3 +17,7 @@
 [Those Happenings of the Ming Dynasty](Learning/Those_Happenings_of_the_Ming_Dynasty.md)
 
 [搜索技术-变强的外挂](Learning/Search.md)
+
+<a href="./Learning/Secret.md"><img src="./Learning/img-tree/risk-line.png" height='10px' width='10px' alt='大象'></a>
+
+
