@@ -18,6 +18,8 @@
 
 [搜索技术-变强的外挂](Learning/Search.md)
 
+[蓝桥杯python](Learning/LanQiao_Python.md)
+
 <a href="./Learning/Secret.md"><img src="./Learning/img-tree/risk-line.png" height='10px' width='10px' alt='大象'></a>
 
 
