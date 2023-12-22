@@ -20,4 +20,7 @@
 * 数据的精度控制:m.n **eg. print("number is %6.2d" % 23.231) -> out is []23.23**  
 * 快速格式化:**print(f"this is a:{value_A}")**  
 * python的输入是:**value = input()**,但是数据类型会一直是str
-
+* 位置不定长: **eg. def test(\*args): 传入的参数不限制长度,用args保存,是一个列表**  
+* 关键字不定长: **eg. def test(\*\*kwargs): 传入的参数不限制长度,但是要是键值对,用kwargs保存,是一个字典**  
+* 函数也可以作为参数传入函数  
+* \_\_name\_\_ == '\_\_main\_\_' 可以限制外部文件直接import导致的自动执行问题, \_\_all\_\_可以限制外部import *时所有方法被引入的问题**eg. \_\_all\_\_=['test_a']**
