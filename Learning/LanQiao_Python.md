@@ -1,6 +1,6 @@
 # 蓝桥杯python研究生组备考就是在这里了
 
-[待学链接](https://www.bilibili.com/video/BV1qW4y1a7fU?p=72&vd_source=5a8651962259df7b14781b1d0370c6a0)
+<!-- [待学链接](https://www.bilibili.com/video/BV1qW4y1a7fU?p=72&vd_source=5a8651962259df7b14781b1d0370c6a0) -->
 
 ### 一些考试的注意事项
 * 日期题是必考的.  
