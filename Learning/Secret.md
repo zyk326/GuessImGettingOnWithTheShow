@@ -13,6 +13,4 @@
 
 >我要怎么办,我想说话,我想有一个人可以听我说话,不需要回答我,只是做一个听众,只是让我把想说的话说出来就行,我需要一个能听我说话的人.  
 
-<video controls width="360">
-  <source src="./video-tree/BDSM/BDSM.mp4" type="video/mp4" />
-</video>
+<iframe src="//player.bilibili.com/player.html?aid=663647693&bvid=BV1ba4y1U7Ls&cid=1340533710&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
