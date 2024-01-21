@@ -1,47 +1,56 @@
-N = 100010
-index = 0
+N = 100001
+h = [-1 for i in range(N)]
+w = [0 for i in range(N)]
+e = [0 for i in range(N)]
+ne = [0 for i in range(N)]
+idx = 0
+dist = [N for i in range(N)]
+st = [0 for i in range(N)]
 
-def add(a, b):
-    global index, e, ne, index, h
-    e[index] = b
-    ne[index] = h[a]
-    h[a] = index
-    index += 1
+def add(a, b, c):
+    global idx
+    e[idx] = b
+    w[idx] = c
+    ne[idx] = h[a]
+    h[a] = idx
+    idx += 1
 
-def bfs():
-    print(d[0:10])
-    hh, tt = 0, 0
-    q[0] = 1
-    d[1] = 0
-    while(hh <= tt):
-        t = q[hh]
-        hh += 1
+def spfa():
+    dist[1] = 0
+    q = []
+    q.append(1)
+    st[1] = 1
+    while(len(q)):
+        t = q[0]
+        del q[0]
+        st[t] = 0
         i = h[t]
         while(i != -1):
             j = e[i]
-            print(i, j)
-            if(d[j] == -1):
-                d[j] = d[t] + 1
-                tt += 1
-                q[tt] = j
+            if(dist[j] > dist[t] + w[i]):
+                dist[j] = dist[t] + w[i]
+                if(st[j] == 0):
+                    q.append(j)
+                    st[j] = 1
             i = ne[i]
-    return d[n]
+    if(dist[n] == N):
+        return -1
+    else:
+        return dist[n]
 
 if __name__ == '__main__':
-    h = [-1 for i in range(N)]
-    e = [0 for i in range(2 * N)]
-    ne = [0 for i in range(2 * N)]
-    st = [0 for i in range(N)]
-    q = [0 for i in range(N)]
-    d = [-1 for i in range(N)]
     n, m = input().split()
     n = int(n)
     m = int(m)
+
     while(m):
-        m -= 1
-        a, b = input().split()
+        a, b, c = input().split()
         a = int(a)
         b = int(b)
-        add(a, b)
-    print(bfs())
-    print(d[0:10])
+        c = int(c)
+        add(a, b, c)
+        m -= 1
+    
+    t = spfa()
+
+    print(t)
