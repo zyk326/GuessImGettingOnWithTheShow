@@ -70,7 +70,8 @@ if __name__ == '__main__':
     
     t = spfa()
 
-    print(t)
+    print(t)  
+    
 ```
 </details>
 
