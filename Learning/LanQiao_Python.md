@@ -11,7 +11,7 @@
 ## 下面是经典的题目和代码  
 
 
- <details><summary>SPFA：点击查看详细内容</summary>    
+ <details><summary>SPFA：求有负权边的最短路径,维护一个dist数组,用了队列</summary>    
 <img src="./img-tree/LanQiao_foundation/SPFA.png" alt="SPFA" />
 
 
