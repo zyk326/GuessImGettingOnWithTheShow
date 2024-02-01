@@ -15,6 +15,11 @@
 <img src="./img-tree/LanQiao_foundation/SPFA.png" alt="SPFA" />
 </details>
 
+<details><summary>求一个数的约数的个数和约数之和</summary>    
+<img src="./img-tree/LanQiao_foundation/4-1.png" alt="SPFA" />
+
+</details>
+
 
 ## 下面是一些知识点  
 * 数据类型转换:直接用int(), str(), float()  
