@@ -20,6 +20,11 @@
 
 </details>
 
+<details><summary>DP的常规思路图</summary>    
+<img src="./img-tree/LanQiao_foundation/DP.png" alt="SPFA" />
+
+</details>
+
 
 ## 下面是一些知识点  
 * 数据类型转换:直接用int(), str(), float()  
