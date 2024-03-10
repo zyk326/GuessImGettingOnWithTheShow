@@ -1,22 +1,55 @@
-def deal(N, str):
-    inf = [0]
-    for i in range(N):
-        inf.append(int(str[i]))
-    res = 0
-    s = [0]
-    for i in range(1, N + 1):
-        s.append(s[i - 1] + inf[i])
-    ind = (N + 1) // 2
-    for i in range(1, N + 1 - ind):
-        res = max(res, s[i + ind - 1] - s[i - 1])
+def work(a):
+    buf = [[]]
+    for i in range(1, n + 1):
+        bufs = [a[i]]
+        bufs.append(i)
+        buf.append(bufs)
+    buf[1:] = sorted(buf[1:], key = lambda k:k[0])
+    for i in range(1, n + 1):
+        a[buf[i][1]] = i
+
+def merge_res(l, r):
+    if l >= r:
+        return 0
+    mid = (l + r) >> 1
+    res = (merge_res(l, mid) + merge_res(mid + 1, r)) % mod
+    i, j, k = l, mid + 1, 0
+    while(i <= mid and j <= r):
+        if b[i] < b[j]:
+            p[k] = b[i]
+            k += 1
+            i += 1
+        else:
+            p[k] = b[j]
+            k += 1
+            j += 1
+            res = (res + mid - i + 1) % mod
+    while(i <= mid):
+        p[k] = b[i]
+        k += 1
+        i += 1
+    while(j <= r):
+        p[k] = b[j]
+        k += 1
+        j += 1
+    b[l:l + k] = p[:k]
     return res
 
 if __name__ == '__main__':
-    T = int(input())
-    ans = []
-    for i in range(T):
-        N = int(input())
-        str = input()
-        ans.append(deal(N, str))
-    for i in range(T):
-        print("Case #%d: %d"%(i, ans[i]))
+    n = int(input())
+    a = list(map(int, input().strip().split()))
+    b = list(map(int, input().strip().split()))
+    a.insert(0, 0)
+    b.insert(0, 0)
+    N = 100010
+    mod = 99999997
+    c = [0 for i in range(N)]
+    p = [0 for i in range(N)]
+    work(a)
+    work(b)
+    for i in range(1, n + 1):
+        c[a[i]] = i
+    for i in range(1, n + 1):
+        b[i] = c[b[i]]
+    res = merge_res(1, n)
+    print(res)
