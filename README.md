@@ -22,6 +22,10 @@
 
 [蓝桥杯python](Learning/LanQiao_Python.md)
 
+[研究生-实验设计](Learning/PostGraduate/Experimental_part.md)
+
+[研究生-论文笔记](Learning/PostGraduate/Essay_notes.md)
+
 ---
 
 [　](./Learning/Secret.md)
