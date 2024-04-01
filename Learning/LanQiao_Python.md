@@ -3,6 +3,8 @@
 <!-- [待学链接](https://www.bilibili.com/video/BV1qW4y1a7fU?p=72&vd_source=5a8651962259df7b14781b1d0370c6a0) -->
 
 ### 一些考试的注意事项
+>>>**无巧不成题**
+
 * 日期题是必考的.  
 * dp状态转移方程要仔细分析,最好用递推的方式,不要用递归.  
 * 可以根据数据规模分段处理,例如a∈[0, 1000]用solve1(),a∈[1001,100000]用solve().  
@@ -27,12 +29,14 @@ sys.setrecursionlimit(100000)
 
 <details><summary>求一个数的约数的个数和约数之和</summary>    
 <img src="./img-tree/LanQiao_foundation/4-1.png" alt="SPFA" />
-
 </details>
 
 <details><summary>DP的常规思路图</summary>    
 <img src="./img-tree/LanQiao_foundation/DP.png" alt="SPFA" />
+</details>
 
+<details><summary>树状数组</summary>    
+<img src="./img-tree/LanQiao_foundation/tree_list.png" alt="SPFA" />
 </details>
 
 
