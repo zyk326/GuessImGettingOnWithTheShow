@@ -39,6 +39,12 @@ sys.setrecursionlimit(100000)
 <img src="./img-tree/LanQiao_foundation/tree_list.png" alt="SPFA" />
 </details>
 
+<details><summary>线性筛</summary>    
+<img src="./img-tree/LanQiao_foundation/liner_filter.png" alt="SPFA" />
+</details>
+
+
+
 
 ## 下面是一些知识点  
 * 数据类型转换:直接用int(), str(), float()  
