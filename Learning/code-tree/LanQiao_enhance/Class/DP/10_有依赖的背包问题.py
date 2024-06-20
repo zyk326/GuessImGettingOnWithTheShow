@@ -1,3 +1,5 @@
+# 数组化的单链表 + 深搜
+# 背包问题的降维操作
 N, V = map(int, input().split())
 
 e = [0 for _ in range(N + 10)]

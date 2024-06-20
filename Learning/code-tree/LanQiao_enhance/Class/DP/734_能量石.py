@@ -9,7 +9,7 @@ class Info:
         self.L = L
     
     def __lt__(self, other):
-        return self.S * other.L < self.L * other.S
+        return self.S * other.L < self.L * other.S 
 
 ans = []
 while(t):
