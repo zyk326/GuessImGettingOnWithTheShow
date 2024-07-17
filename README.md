@@ -26,6 +26,8 @@
 
 [研究生-论文笔记](Learning/PostGraduate/Essay_notes.md)
 
+[摄影师成长计划](Learning/Camerist.md)
+
 ---
 
 [　](./Learning/Secret.md)
