@@ -235,5 +235,54 @@ k折交叉验证:1...k 使用第i块作为验证数据集,其余作为训练数�
 
 >>non是梯度爆炸的问题,解决办法可以是降低学习率
 
+
+## PyTorch神经网络基础
+
+net = nn.Sequential(nn.Linear(20, 256), nn.ReLU(), nn.Linear(256, 10))  
+**nn.Sequential定义了一种特殊的Module**
+
+```
+class MLP(nn.Module):
+    def __init__(self):
+        super.__init__()
+        self.hidden = nn.Linear(20, 256)
+        self.out = nn.Linear(256, 10)
+
+    def forward(self, X):
+        return self.out(F.relu(self.hidden(X)))
+使用: 
+net = MLP()
+net(X)  
+```
+**所有的神经网络的层或者模块都应该是Module的子类,这上面是自定义块,它继承了Module的所有init,自定义了hidden和out,同时定义了向前传播函数.** 输入是20,输出是10  
+
+
+>定义自己的Sequential
+```
+class MySequential(nn.Module):
+    def __init__(self, *args):
+        super.__init__()
+        for block in args:
+            self._modules[block] = block
+    
+    def forward(self, X):
+        for block in self._modules.values():
+            X = block(X)
+        return X
+
+使用:
+net = MySequential(nn.Linear(20, 256), nn.Relu(), nn.Linear(256, 10))  
+net(X)
+```
+**用*args传递多个变量,即多个层**
+
+混合搭配各种组合块的方法
+
+net.weight.data可以看到net中某一层的值
+
+```
+torch.save(net.state_dict(), 'mlp.params')
+```
+把mlp所有的参数存成一个字典,是名称到值的映射
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1NK4y1P7Tu/?spm_id_from=autoNext&vd_source=5a8651962259df7b14781b1d0370c6a0)
