@@ -1,5 +1,7 @@
 # 蓝桥杯python研究生组备考就是在这里了
 
+# 一些算法笔记也在后面
+
 <!-- [待学链接](https://www.bilibili.com/video/BV1qW4y1a7fU?p=72&vd_source=5a8651962259df7b14781b1d0370c6a0) -->
 
 ### 一些考试的注意事项
@@ -62,3 +64,20 @@ sys.setrecursionlimit(100000)
 * 把列表里面的元素一次性更改数据类型：**dist1 = list(map(int,dist))**    
 * python对单一数组元素做循环且不能改变初始状态的操作时,需要另起一个变量,且不能简单使用赋值符:**eg a = [[1, 2, 3]] b = a[:]**  
 * 二维数组切片:不能用p[:0][:0],要用**m = [row(:y) for row in g(:x)]**
+
+## leetcode题目
+### 文本左右对齐
+```
+class Solution:
+    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:
+        res, line, str_num = [], [], 0
+        for word in words:
+            if str_num + len(line) - 1 + len(word) >= maxWidth: # 之前的单词组长度，单词间隔，新的单词长度
+                for i in range(maxWidth - str_num):
+                    line[i % max(len(line) - 1, 1)] += ' '
+                res.append(''.join(line))
+                line, str_num = [], 0
+            line.append(word)
+            str_num += len(word)
+        return res + [' '.join(line).ljust(maxWidth)]
+```
