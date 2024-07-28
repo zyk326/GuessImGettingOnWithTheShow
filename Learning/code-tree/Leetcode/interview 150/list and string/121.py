@@ -4,7 +4,6 @@
 class Solution:
     def maxProfit(self, prices: List[int]) -> int:
         cost, profit = float("INF"), float("-INF")
-        le = len(prices)
         for price in prices:
             cost = min(cost, price)
             profit = max(profit, price - cost)

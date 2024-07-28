@@ -1,6 +1,6 @@
 # 分发糖果
 
-# 左右规则遍历后结合,有一个点是说答案直接取left[-1]做基是因为
+# 左右规则遍历后结合,有一个点是说答案直接取left[-1]做基是因为此点已经是max(A, B)中的结果了.
 
 class Solution:
     def candy(self, ratings: List[int]) -> int:

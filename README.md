@@ -20,7 +20,7 @@
 
 [搜索技术-变强的外挂](Learning/Search.md)
 
-[蓝桥杯python](Learning/LanQiao_Python.md)
+[python进阶之路](Learning/Python_Code.md)
 
 [研究生-实验设计](Learning/PostGraduate/Experimental_part.md)
 
