@@ -114,31 +114,31 @@ APS-C = 全画幅 × 1.5
 # top
 ### 扫街
 --2024/03/10
-![1](../Learning/img-tree/Camerist/1.jpg)
-![2](../Learning/img-tree/Camerist/2.jpg)
-![3](../Learning/img-tree/Camerist/3.jpg)
+![1](./img-tree/Camerist/1.jpg)
+![2](./img-tree/Camerist/2.jpg)
+![3](./img-tree/Camerist/3.jpg)
 
 ### 曾淑祺 人像
 --2024/03/23
-![4](../Learning/img-tree/Camerist/4.jpg)
+![4](./img-tree/Camerist/4.jpg)
 
 ### 爷爷
 --2024/04/05
-![7](../Learning/img-tree/Camerist/7.jpg)
+![7](./img-tree/Camerist/7.jpg)
 
 ### 张芸 人像
 --2024/04/22
-![5](../Learning/img-tree/Camerist/5.jpg)
+![5](./img-tree/Camerist/5.jpg)
 
 ### 香港行 人像抓拍
 --2024/05/09
-![6](../Learning/img-tree/Camerist/6.jpg)
+![6](./img-tree/Camerist/6.jpg)
 
 ### 老家
 --2024/07/08
-![8](../Learning/img-tree/Camerist/8.jpg)
-![9](../Learning/img-tree/Camerist/9.jpg)
+![8](./img-tree/Camerist/8.jpg)
+![9](./img-tree/Camerist/9.jpg)
 
 ### 吴丹丹 人像
 --2024/07/14
-![10](../Learning/img-tree/Camerist/10.jpg)
+![10](./img-tree/Camerist/10.jpg)
