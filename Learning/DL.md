@@ -321,6 +321,18 @@ torch.save(net.state_dict(), 'mlp.params')
 **LeNet的核心代码**
 ![Lenet](./img/lenet.png)
 
+## AlexNet
+
+**它是更大的LeNet,10x参数个数,260x计算复杂度,引入丢弃法,ReLU,最大池化层,数据增强,它赢得2012ImageNet竞赛后,标志着新一轮的神经网络热潮的开始**  
+
+**AlexNet的核心代码,不同的是他最后有dropout丢弃层,把一半的值置为0,另一半乘以2.** 
+![AlexNet](./img/AlexNet.png)
+
+**如果前面的卷积抽取的特征不够深,那么后面的两个大全连接层是非常重要的.**
+
+## 使用块的网络VGG
+**它是AlexNet的拓展,就是把一些卷积,一个池化做成一个单位,多单位累计的过程.**  
+**它是更大更深的AlexNet.**
 
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1NK4y1P7Tu/?spm_id_from=autoNext&vd_source=5a8651962259df7b14781b1d0370c6a0)
