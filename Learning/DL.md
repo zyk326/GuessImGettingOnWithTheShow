@@ -332,7 +332,41 @@ torch.save(net.state_dict(), 'mlp.params')
 
 ## 使用块的网络VGG
 **它是AlexNet的拓展,就是把一些卷积,一个池化做成一个单位,多单位累计的过程.**  
-**它是更大更深的AlexNet.**
+**它是更大更深的AlexNet.**  
+**他需要定义一个vgg块,包含卷积的层数,输入通道数量,输出通道数量**  
+![vgg-block](./img/vgg-block.png)
+**然后再来定义整个vgg网络**  
+![vgg](./img/vgg.png)
 
+## NiN(Network in Network)
+网络中的网络  
+
+**NiN块:在一个卷积层后面跟两个全连接层,步幅是1,核大小是1x1,起到全连接层的作用**  
+![NiN](./img/NiN.png)
+**NiN架构最后用了一个全局平均池化层来替代VGG核AlexNet的全连接层**  
+
+![NiN block](./img/NiN-block.png)
+![NiN-model](./img/NiN-model.png)
+
+## GoogLeNet  
+**里面有超过100个卷积层**  
+![](./img/Inception.png)
+![](./img/GoogLeNet.png)
+
+## 批量归一化  
+**在做深的层的时候,需要这个.**  
+
+为了避免在学习底部层的时候变化顶部层.  
+
+![](./img/Guiyi.png)  
+![](./img/Zuo.png)
+
+**最初用这个东西是想用它来减少内部协变量转移,但是后续有论文指出它可能就是通过在每个小批量里加入噪音来控制模型复杂度.没必要把这个跟DropOut混合使用.**  
+**使用这个可以使用更大的学习率.**  
+**先卷积,再BatchNorm,再激活,再池化.**
+
+## ResNet
+**如果在卷积神经网路里只能看一个网络,那就看ResNet.**
+  
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1NK4y1P7Tu/?spm_id_from=autoNext&vd_source=5a8651962259df7b14781b1d0370c6a0)
