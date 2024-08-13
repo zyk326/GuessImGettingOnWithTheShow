@@ -277,3 +277,40 @@ class LRUCache:
 * 看右视图,只需要递归的时候先遍历右边再遍历左边就可以.  
 * 所有的层序遍历都可以用宽搜来实现.  
 
+## 二叉搜索树 
+
+这里就几个知识点:前缀遍历,中缀遍历,后缀遍历  
+
+* 在用中缀遍历判断数的合法性的时候,需要用一个变量存储前一个节点,因为,前一个节点在空间上不连续.  
+* 有一种递归不返回值,有一种递归一直返回值.  
+* 不返回值就直接在函数里更改全局变量,一直返回值就用yield生成器,这里有一个python的用法:yield from dfs(), yield num.  
+
+## 图
+
+图也就是玩下标,无聊的很.  
+
+* 一个拷贝图的思想:拼多多的面试题:  
+```python
+from typing import Optional
+class Solution:
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        lookup = {}
+        def dfs(node):
+            if not node:
+                return
+            if node in lookup:
+                return lookup[node]
+            clone = Node(node.val, [])
+            lookup[node] = clone
+            for n in node.neighbors:
+                clone.neighbors.append(dfs(n)) # 这里是因为n这个节点可能还没有被创建出来
+            return clone
+        return dfs(node)
+```
+* 岛屿的数量有一个错误点:在dfs里用灌水算法,要用局部变量存放临时的xy 偏移值.  
+* 判断有无环,就用拓扑图的思想,用队列,用入度来加入队列.  
+* 有些情况需要自己抽象题目内容来构造图,方法是如果a能转移到b,那就给a到b加一条边.  
+
+## 图的广度优先搜索
+
+* 一个python的用法:combinations,用来将列表里的值按照给的num数量配对,用法:**for a, b in combinations(list + [nums], 2).**  

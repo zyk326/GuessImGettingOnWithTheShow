@@ -423,7 +423,10 @@ ResNet块,可以是高宽减半,通道加倍的resnet块,或者是多个高宽�
 
 越底层,越通用,因为它们是在做纹理的提取.  
 
+## 物体检测
 
+通常识别图片里的多个物体的类别和位置  
+位置通常用边缘框表示
 
 ---
 ## [这里是待学链接](https://www.bilibili.com/video/BV1NK4y1P7Tu/?spm_id_from=autoNext&vd_source=5a8651962259df7b14781b1d0370c6a0)
