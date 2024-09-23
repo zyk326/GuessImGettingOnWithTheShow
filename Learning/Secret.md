@@ -9,7 +9,7 @@
 
 
 <details><summary>字母圈的那些事</summary>    
-<a href="https://www.bilibili.com/video/BV1ba4y1U7Ls/?spm_id_from=333.999.list.card_archive.click&vd_source=5a8651962259df7b14781b1d0370c6a0">啥是BDSM</a>  
+<a href="https://www.bilibili.com/video/BV1ba4y1U7Ls/?spm_id_from=333.999.0.0&vd_source=5a8651962259df7b14781b1d0370c6a0">啥是BDSM</a>  
 <img src="./img-tree/Secret/BDSM.jpg" alt="" />
 </details>
 
