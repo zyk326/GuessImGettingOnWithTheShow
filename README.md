@@ -6,6 +6,8 @@
 
 [深度学习](Learning/DL.md)
 
+[PyTorch入门](Learning/PyT.md)
+
 [电影历史](Learning/Movie_History.md)
 
 [我能这么说吗](Learning/Self.md)
