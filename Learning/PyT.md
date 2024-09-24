@@ -7,7 +7,7 @@
 使用**torch.cuda.is_available()**查看cuda的可用状态.  
 
 使用conda ： **conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia**来安装torch.  
-删除conda虚拟环境 ： **conda remove d2l-zh --all**.  
+删除conda虚拟环境 ： **conda env remove -n d2l-zh **.  
 
 代码中一些没有返回值的.()动作大概率是将xx置于.xx()状态.  
 
