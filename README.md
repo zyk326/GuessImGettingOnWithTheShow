@@ -30,6 +30,8 @@
 
 [摄影师成长计划](Learning/Camerist.md)
 
+[认知与就业](Learning/KAW.md)
+
 ---
 
 [　](./Learning/Secret.md)
