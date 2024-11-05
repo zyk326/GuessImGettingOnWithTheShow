@@ -1,6 +1,7 @@
 [蓝桥杯的备考在这里](#蓝桥杯python研究生组备考就是在这里了)  
 [leetcode题目在这里](#leetcode题目)  
 [算法笔记在这里](#一些算法笔记也在后面)  
+[python有关的项目在这里]()
 
 # 蓝桥杯python研究生组备考就是在这里了
 
@@ -315,3 +316,12 @@ class Solution:
 ## 图的广度优先搜索
 
 * 一个python的用法:combinations,用来将列表里的值按照给的num数量配对,用法:**for a, b in combinations(list + [nums], 2).**  
+
+# python项目
+
+[mysql密码忘记了看这里重置密码](https://zhuanlan.zhihu.com/p/561515580)
+
+## 有关的一些命令
+* **netstat -ano|findstr 8000**:windows查看端口占用情况。  
+* **tasklist|findstr 8000**：windows查看端口被什么占用。  
+* **python manage.py startapp xxx**:django新建一个app。   

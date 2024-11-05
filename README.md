@@ -6,7 +6,7 @@
 
 [深度学习](Learning/DL.md)
 
-[PyTorch入门](Learning/PyT.md)
+[AI-PyTorch入门](Learning/PyT.md)
 
 [电影历史](Learning/Movie_History.md)
 
