@@ -149,10 +149,144 @@ import { ref, computed, watch, reactive } from "vue";都有其语法和特点,�
 生命周期函数有四个阶段  
 defineProps({})  
 defineEmits([])  
-defineModel()  
+defineModel()
 
-插槽  
+插槽
+
 ```html
-<slot name="gloop" :onename="name3"></slot>  
-<template #gloop="scope"> nihao{{ scope.onename }} </template>  
+<slot name="gloop" :onename="name3"></slot>
+<template #gloop="scope"> nihao{{ scope.onename }} </template>
 ```
+
+Router:npm install vue-router@latest
+Pinia:npm install pinia@2.1.7
+
+# 下面是机器学习的面试技巧攻略
+
+以下是针对机器学习笔试的核心知识点总结和复习指南，涵盖高频考点和实用技巧，帮助你快速突击：
+
+---
+
+### **一、机器学习核心知识突击（理论+笔试高频题）**
+
+#### **1. 监督学习算法**
+- **线性回归**  
+  - 公式：\( y = w^Tx + b \)，损失函数（MSE）  
+  - 闭式解：\( w = (X^TX)^{-1}X^Ty \)（需推导）  
+  - 正则化：L1（Lasso） vs L2（Ridge）  
+  - **笔试题**：推导梯度下降更新公式、正则化的作用。
+
+- **逻辑回归**  
+  - 公式：\( P(y=1|x) = \frac{1}{1 + e^{-(w^Tx + b)}} \)，损失函数（交叉熵）  
+  - **笔试题**：为什么用交叉熵而非MSE？逻辑回归能否处理非线性问题？
+
+- **决策树**  
+  - 分裂准则：信息增益（ID3）、信息增益率（C4.5）、基尼指数（CART）  
+  - **笔试题**：如何防止过拟合（剪枝、最大深度、最小样本分裂）？
+
+- **随机森林 & XGBoost/LightGBM**  
+  - 核心：Bagging vs Boosting  
+  - **笔试题**：XGBoost的损失函数（正则项）、LightGBM的直方图优化。
+
+#### **2. 模型评估与优化**
+- **评估指标**  
+  - 分类：准确率、精确率、召回率、F1、AUC-ROC曲线（绘制与解释）  
+  - 回归：MSE、MAE、R²  
+  - **笔试题**：AUC的含义、如何处理类别不平衡问题（过采样、代价敏感）？
+
+- **过拟合解决**  
+  - 正则化、交叉验证、早停法、Dropout（深度学习）  
+  - **笔试题**：L1正则化为什么能产生稀疏解？
+
+#### **3. 特征工程**
+- **数据预处理**  
+  - 缺失值处理（均值/中位数填充、删除）、标准化（Z-Score）、归一化（Min-Max）  
+  - 类别编码：One-Hot Encoding、Label Encoding  
+  - **笔试题**：类别特征能否直接输入树模型？为什么？
+
+- **特征选择**  
+  - 过滤法（卡方检验、方差阈值）、包裹法（递归特征消除）、嵌入法（L1正则化）。
+
+#### **4. 无监督学习**
+- **聚类（K-Means）**  
+  - 算法步骤、肘部法则、K-Means++初始化  
+  - **笔试题**：K-Means对异常值是否敏感？
+
+- **降维（PCA）**  
+  - 协方差矩阵、特征值分解、主成分解释方差  
+  - **笔试题**：PCA能否保留非线性关系？
+
+---
+
+### **二、编程与数学基础（笔试必考）**
+
+#### **1. Python编程**
+- **数据处理**  
+  ```python
+  # Pandas常用操作
+  df.dropna(), df.fillna(), df.groupby(), df.merge()
+  # NumPy矩阵计算
+  np.dot(), np.linalg.inv(), np.mean(axis=0)
+  ```
+
+- **手写算法**  
+  ```python
+  # 手写K-Means伪代码（核心步骤）
+  def kmeans(data, k):
+      初始化中心点
+      while 中心点变化 > 阈值:
+          分配样本到最近中心
+          更新中心点为簇内均值
+  ```
+
+#### **2. SQL基础**
+- **高频语法**  
+  ```sql
+  -- 查询每个用户的订单数
+  SELECT user_id, COUNT(order_id) 
+  FROM orders 
+  GROUP BY user_id 
+  HAVING COUNT(order_id) > 5;
+
+  -- 窗口函数：计算排名
+  SELECT product_id, sales, RANK() OVER (ORDER BY sales DESC) 
+  FROM products;
+  ```
+
+#### **3. 数学推导**
+- **线性代数**  
+  - 矩阵乘法、矩阵求导（如 \( \frac{\partial}{\partial w} \|Xw - y\|^2 \)）。
+
+- **概率论**  
+  - 贝叶斯定理、最大似然估计（MLE）。
+
+---
+
+### **三、笔试实战技巧**
+
+#### **1. 题型分析**
+- **选择题**：快速排除法，如“以下哪种模型是无监督学习？”（K-Means）。  
+- **简答题**：结构化回答（问题定义→方法→优缺点），如“解释SVM核技巧”。  
+- **编程题**：优先写伪代码，注释关键步骤（如数据预处理、模型训练）。
+
+#### **2. 高频笔试真题**
+1. **推导逻辑回归的损失函数**（从MLE出发）。  
+2. **随机森林为什么比单棵决策树稳定？**（Bagging降低方差）。  
+3. **用Python实现归一化（Min-Max Scaling）**。  
+4. **SQL查询：找出每个部门工资最高的员工**。  
+
+#### **3. 时间分配建议**
+- **理论题**：30%时间（确保公式和概念正确）。  
+- **编程题**：50%时间（优先完成核心逻辑）。  
+- **开放题**：20%时间（框架清晰，如“设计推荐系统”可按召回→排序→重排分步回答）。
+
+---
+
+### **四、附加资源**
+- **刷题网站**：LeetCode（SQL + 算法）、Kaggle（机器学习案例）。  
+- **速查表**：打印Scikit-learn API常用函数、Pandas操作语法。  
+- **模拟题**：搜索“机器学习笔试真题”限时练习。
+
+---
+
+**最后提醒**：笔试中遇到陌生问题，尝试关联已有知识（如“图卷积网络”可类比CNN的局部连接思想），展现分析能力而非死记硬背！
