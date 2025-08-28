@@ -283,3 +283,36 @@ D面的胶偏位缺陷。
 **后处理软件里面的那些前景背景值没显示出来**  
 解决办法：更换AlphaVision（后处理软件）的四个文件（dll，lib，db啥，xxx）    
 
+
+工作流：  
+- 4-hinge（把标注数据搬到训练数据）  
+- 5-hingeFindG（从训练数据中找到指定面的数据）  
+- DATA_CONVERSION_UTILS_2（划分训练集，测试集）   
+- data_conversion_utils（查看标签，做好记录）   
+- data_conversion_utils（数据增强）  
+- train（找到对应训练yaml，增加图片train和val）   
+- train（修改train文件，batchsize，device，weight，开始训练）    
+
+- 先转onnx，再转mdl    
+
+B C E F 外  
+G H I L 内  
+I模型下管三个文件夹：I J K  
+L模型下管两个文件夹：L M
+  
+轻微压伤检出能力弱：H G   
+轻微内碰检出能力弱：H G 
+轻微黑线检出能力弱：H G   
+麻点检出能力极弱  ：G    
+
+0828模型检出测试：  
+B：碰伤压伤交叉检测了，小目标检出不够优秀。  
+E：小目标压伤不够优秀。  
+G：小目标麻点不够优秀。  
+H：小目标压伤不够优秀。  
+
+0828：  
+BEGH的数据在表格里登记一下。  
+把其他面的数据做出来，训一版。    
+今天训A F I（F【1】，I【3】面有新加缺陷）    
+(A F I直接开训，对齐到27号)
