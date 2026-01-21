@@ -1,7 +1,5 @@
 # GuessImGettingOnWithTheShow
 
-
-
 [机器学习](Learning/ML.md)
 
 [深度学习](Learning/DL.md)
@@ -33,5 +31,9 @@
 [认知与就业](Learning/KAW.md)
 
 [真的就业了](Learning/Working.md)
+
+[Anomalib平台搭建](Learning/Anomalib.md)
+
+[C++进阶之路](Learning/WorkingLikeNiuma.md)
 
 ---
