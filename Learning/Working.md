@@ -1,8 +1,8 @@
 ﻿# 算法 DRI-Cover 实战攻略
 
-> **版本** v1.0  
+> **版本** v2.0 (专业修订版)  
 > **来源** 内部项目经验总结  
-> **范围** 涵盖深度学习算法与 HALCON 传统算法两大板块
+> **适用范围** 涵盖深度学习算法与 HALCON 传统算法两大技术路线
 
 ---
 
@@ -39,7 +39,7 @@
 
 ### 1.1 目录结构规范
 
-为防止文件杂糅，采用三级目录结构进行工程化管理：
+为规范工程组织、防止文件混杂，建议采用三级目录结构进行管理：
 
 ```
 train_data_xxx/                          # 一级：个人工作空间
@@ -67,7 +67,7 @@ train_data_xxx/                          # 一级：个人工作空间
 
 ### 1.3 文件对应规范
 
-一个模型 PY 文件对应一个 DataYaml，一个 DataYaml 对应 data 下的一个数据区块。
+文件对应原则：每个模型 PY 文件与一个 DataYaml 一一对应，每个 DataYaml 映射 data 目录下的一个数据区块。
 
 ---
 
@@ -78,12 +78,12 @@ train_data_xxx/                          # 一级：个人工作空间
 | 参数 | 用途 | 说明 |
 |------|------|------|
 | `project` | 结果保存目录 | 所有训练产物均保存至此路径 |
-| `name` | 结果文件夹名称 | 建议加入时间后缀以区分 |
+| `name` | 结果文件夹名称 | 建议附加时间戳后缀以区分不同训练批次 |
 | `weights` | 模型架构/预训练权重 | 可传 .pt 文件或模型 yaml 路径；使用 `-p6` 后缀时 imgsz 需为 64 的倍数 |
 | `data` | 数据集 YAML 路径 | 指向 DataYaml 文件 |
-| `epochs` | 训练轮次 | 默认 300，随数据集大小调整 |
-| `batch` | 批次大小 | 控制 BN、显存、速度、泛化，默认 16/32 |
-| `imgsz` | 输入图片尺寸 | 控制检测精度与显存；非 -p6 模型为 32 的倍数 |
+| `epochs` | 训练轮次 | 默认值为 300，实际取值应根据数据集规模动态调整 |
+| `batch` | 批次大小 | 影响 Batch Normalization 统计特性、显存占用、训练速度及泛化能力；默认值为 16 或 32 |
+| `imgsz` | 输入图片尺寸 | 影响检测精度与显存占用；对于非 -p6 模型，输入尺寸应为 32 的整数倍 |
 | `device` | 推理设备 | 显卡编号，逗号分隔 |
 | `workers` | 数据加载进程数 | 默认 8/16 |
 | `resume` | 断点续训 | 自动读取 last.pt 继续训练 |
@@ -93,14 +93,14 @@ train_data_xxx/                          # 一级：个人工作空间
 | 产物 | 路径 | 说明 |
 |------|------|------|
 | 训练指标 | `[project]/results.csv` | 每个 epoch 的详细指标 |
-| 模型权重 | `[project]/weights/best.pt` / `last.pt` | 一般情况下使用 best.pt |
-| 训练配置 | `[project]/args.yaml` | 所有训练配置的溯源备份 |
-| BoxPR 曲线 | — | 目标框对测试集的拟合程度 |
-| MaskPR 曲线 | — | 掩码对测试集的拟合程度 |
+| 模型权重 | `[project]/weights/best.pt` / `last.pt` | 通常情况下优先选用 best.pt 权重文件 |
+| 训练配置 | `[project]/args.yaml` | 用于训练参数的完整溯源与审计 |
+| BoxPR 曲线 | — | 反映目标检测框在测试集上的拟合程度与泛化性能 |
+| MaskPR 曲线 | — | 反映实例分割掩码在测试集上的拟合程度与泛化性能 |
 
 ### 2.3 超参数调整
 
-默认超参数在 `ultralytics/cfg/default.yaml` 中。修改时只需在 `model.train()` 的参数列表中传入 `<超参数名=指定值>` 即可。
+默认超参数配置详见 `ultralytics/cfg/default.yaml` 中。修改时只需在 `model.train()` 的参数列表中传入 `<超参数名=指定值>` 即可。
 
 ---
 
@@ -123,10 +123,10 @@ train_data_xxx/                          # 一级：个人工作空间
 
 **② category_map_txt_path**
 
-- 手动创建的缺陷列表 TXT 文件
-- 将所有缺陷名称按行排列
-- 行的 index 即为转换后的缺陷 index
-- 顺序必须与 DataYaml 中 names 的顺序一致
+- 手动构建的缺陷类别列表（TXT 格式）
+- 将各缺陷名称逐行排列
+- 行号（从 0 开始）即为转换后的缺陷类别索引
+- 该顺序必须与 DataYaml 中 names 字段的顺序严格一致
 
 **③ save_path**
 
@@ -449,147 +449,219 @@ class YOLO_API YOLOV11Seg { ... };
 
 ---
 
+
 # 第二部分：HALCON传统算法
 
 ---
 
 ## 目录（第二部分）
 
-14. [图像读取与显示](#14-图像读取与显示)
-15. [ROI 感兴趣区域操作](#15-roi-感兴趣区域操作)
-16. [颜色空间转换与图像信息](#16-颜色空间转换与图像信息)
-17. [图像增强与预处理](#17-图像增强与预处理)
-18. [边缘检测](#18-边缘检测)
-19. [阈值分割与区域处理](#19-阈值分割与区域处理)
-20. [区域生长与分水岭分割](#20-区域生长与分水岭分割)
-21. [形状特征提取](#21-形状特征提取)
-22. [灰度特征提取](#22-灰度特征提取)
-23. [纹理分析](#23-纹理分析)
-24. [形态学操作](#24-形态学操作)
-25. [霍夫变换与直线检测](#25-霍夫变换与直线检测)
-26. [骨架化与轮廓提取](#26-骨架化与轮廓提取)
-27. [频域处理](#27-频域处理)
-28. [算子选择思维导图](#28-算子选择思维导图)
+1. [HALCON 基础语法](#1-halcon-基础语法)
+2. [图像读取与 ROI 操作](#2-图像读取与-roi-操作)
+3. [图像预处理与增强](#3-图像预处理与增强)
+4. [边缘检测](#4-边缘检测)
+5. [频域滤波](#5-频域滤波)
+6. [图像分割](#6-图像分割)
+7. [形状特征提取](#7-形状特征提取)
+8. [灰度特征与纹理分析](#8-灰度特征与纹理分析)
+9. [形态学操作](#9-形态学操作)
+10. [灰度形态学](#10-灰度形态学)
+11. [边界提取与孔洞填充](#11-边界提取与孔洞填充)
+12. [模板匹配（NCC + 形状匹配）](#12-模板匹配ncc--形状匹配)
+13. [霍夫直线检测](#13-霍夫直线检测)
+14. [HALCON 导出 C++](#14-halcon-导出-c)
 
 ---
 
-## 14. 图像读取与显示
+## 1. HALCON 基础语法
 
-### `read_image`
+### 变量与赋值
+
+HALCON 使用 `:=` 进行赋值，支持动态类型：
 
 ```halcon
-read_image(Image, "LSC.jpg")
+a := 2
+b := 1
+c := a + b       // c = 3
+c[2] := 3        // 数组索引赋值
 ```
 
-| 项目 | 说明 |
-|------|------|
-| 算子说明 | 从磁盘读取图像，支持 BMP/JPEG/PNG/TIFF 等格式 |
-| 使用场景 | 所有视觉任务的起点 |
-| 选择理由 | 最基础的输入算子，扩展名可省略自动匹配 |
+> **应用场景**：HALCON 程序的基础构成单元，用于变量定义与中间结果存储。
 
-### 显示窗口相关
+### 条件语句
 
-| 算子 | 说明 |
-|------|------|
-| `dev_open_window_fit_image` | 自动适配图像尺寸打开窗口 |
-| `dev_open_window` | 手动指定位置和大小 |
-| `dev_display` | 在活动窗口中显示图像/区域 |
-| `dev_close_window` | 关闭窗口 |
-| `dev_set_color("red")` | 设置显示颜色 |
-| `dev_set_draw("fill"/"margin")` | 设置填充/轮廓模式 |
-| `set_display_font` | 设置窗口字体 |
-| `stop()` | 暂停调试（HALCON 中代替断点） |
+```halcon
+if (a > 0)
+    y := 2
+elseif (a == 1)
+    y := 3
+else
+    y := 4
+endif
+```
+
+> **应用场景**：需根据运行时条件分支执行不同逻辑时使用，例如判定检测区域有效性、依据面积阈值选择处理分支。
+
+### 循环语句
+
+```halcon
+// for 循环
+for i := 0 to 9 by 1
+    su := su + i
+endfor
+
+// while 循环
+while (x < 10)
+    x := x + 1
+endwhile
+```
+
+> **应用场景**：图像列表遍历、检测结果区域迭代访问、批量图像处理等场景。
+
+### 元组操作
+
+```halcon
+tuple2 := [0:100]          // 生成 0~100 的等差序列
+tuple3 := [3:3:100]        // 从 3 到 100，步长为 3
+tuple4 := [1, 2, 3]        // 手动构造元组
+tuple4 := [tuple4, 4]      // 追加元素
+tp := gen_tuple_const(10, 5)  // 生成 10 个 5 的常量元组
+```
+
+> **应用场景**：批量索引生成、参数列表构造、多结果组织与存储。
+
+### Switch 语句
+
+```halcon
+switch(Index)
+case 1:
+    result := result + '1'
+    break
+case 2:
+case 3:
+    result := result + '23'
+    break
+default:
+    result := result + '444'
+endswitch
+```
+
+> **应用场景**：多分支选择逻辑，例如依据缺陷类型编码切换不同处理流程。
 
 ---
 
-## 15. ROI 感兴趣区域操作
+## 2. 图像读取与 ROI 操作
 
-> ROI 是机器视觉最重要的概念——缩小处理范围、排除背景干扰、提升速度和精度。
-
-### 矩形 ROI
+### 读取单张图像
 
 ```halcon
-* 平行矩形
-gen_rectangle1(Reg, 281, 1060, 395, 1385)
-reduce_domain(Image, Reg, ImageReduced)
-
-* 旋转矩形
-draw_rectangle2(WindowHandle, Row, Col, Phi, w, h)
-gen_rectangle2(Rect, Row, Col, Phi, w, h)
-reduce_domain(Image, Rect, ImageReduced2)
-
-* 一步到位（平行矩形专用）
-rectangle1_domain(Image, ImgReduced, 6, 529, 290, 1606)
+read_image(Image, 'group_photo.jpg')
 ```
 
-| 算子 | 作用 | 适用场景 |
-|------|------|----------|
-| `gen_rectangle1` | 生成平行于坐标轴的矩形 | 简单裁切、固定 ROI |
-| `draw_rectangle2` | 交互式画旋转矩形 | 需要人工定位的检测区域 |
-| `gen_rectangle2` | 程序化生成旋转矩形 | 已知中心+角度的规则 ROI |
-| `reduce_domain` | 用区域裁剪图像范围 | 所有 ROI 操作的核心步骤 |
-| `rectangle1_domain` | 一步完成矩形裁切 | 快速平行矩形裁切 |
+> **应用场景**：加载待处理的图像文件，支持 JPEG、PNG、TIFF 等常见图像格式。
 
-### 圆形 ROI
+### 批量读取文件夹图像
 
 ```halcon
-gen_circle(Circle1, 100, 200, 50.5)
-gen_circle(Circle2, 200, 300, 50.5)
-union2(Circle1, Circle2, ROI)
-reduce_domain(Image, ROI, ImageReduced)
+list_files('图片文件夹路径', ['files', 'follow_links'], ImageFiles)
+tuple_regexp_select(ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$', 'ignore_case'], ImageFiles)
+
+for Index := 0 to |ImageFiles| - 1 by 1
+    read_image(Image, ImageFiles[Index])
+    * 处理每张图片
+endfor
 ```
 
-当需要多个不相连区域组成一个 ROI 时，用 `union2` 合并。
+> **应用场景**：批量处理目录下所有图像，适用于大规模检测任务或批量预处理流程。
+
+### ROI 手动框选
+
+```halcon
+draw_rectangle2(WindowHandle, Row, Col, Phi, width, height)
+gen_rectangle2(Rectangle, Row, Col, Phi, width, height)
+reduce_domain(Image, Rectangle, ImageReduced)
+```
+
+> **应用场景**：通过人机交互方式选取感兴趣区域（ROI），适用于模板截取、局部检测等需要人工参与的环节。
+
+### ROI 矩形区域
+
+```halcon
+gen_rectangle1(Region, Row1, Col1, Row2, Col2)
+reduce_domain(Image, Region, ImageReduced)
+// 或
+rectangle1_domain(Image, ImageReduced, Row1, Col1, Row2, Col2)
+```
+
+> **应用场景**：在已知坐标条件下直接生成矩形 ROI，适用于固定工位检测区域定义。
+
+### ROI 圆形区域与联合
+
+```halcon
+gen_circle(ROI_0, 877.503, 1934.77, 246.08)
+gen_circle(TMP_Region, 1240.32, 1895.79, 322.284)
+union2(ROI_0, TMP_Region, ROI_0)     // 两个圆形区域合并
+```
+
+> **应用场景**：当检测区域由多个圆形子区域构成时，分别生成后执行合并操作。
+
+### 十字标记
+
+```halcon
+gen_cross_contour_xld(Crosses, X, Y, 10, 0.78)
+```
+
+> **应用场景**：在图像上标记特定坐标点，用于检测结果可视化或参考点标注。
 
 ---
 
-## 16. 颜色空间转换与图像信息
+## 3. 图像预处理与增强
 
-### `rgb1_to_gray`
-
-| 项目 | 说明 |
-|------|------|
-| 算子说明 | 将 RGB 三通道彩色图转为单通道灰度图 |
-| 使用场景 | 绝大多数 HALCON 算子要求输入灰度图 |
-| 选择理由 | 彩色图信息冗余、处理慢，灰度化后速度快且算法兼容性最好 |
-
-### 图像信息查询
-
-| 算子 | 作用 |
-|------|------|
-| `get_image_size` | 获取图像的宽高（像素） |
-| `get_image_type` | 获取图像数据类型 |
-| `get_image_pointer1` | 获取图像内存指针（用于外部接口） |
-
----
-
-## 17. 图像增强与预处理
-
-> 预处理的目标：让目标更明显、让噪声更弱、让后续分割更简单。
-
-### `emphasize`
+### RGB 转灰度
 
 ```halcon
-emphasize(GrayImage, ImageEmphasize, 7, 7, 1)
+rgb1_to_gray(Image, GrayImage)
 ```
 
-自适应增强：均值滤波 + 原始图像加权叠加，突出细节。适合图像对比度不足、边缘模糊的场景。参数：滤波器宽度、高度、因子。
+> **策略依据**：HALCON 中绝大多数算子要求输入灰度图像，因此彩色图像必须先经灰度转换。此为图像预处理流程中的首要步骤。
 
-### `scale_image`（线性拉伸）
+### 图像取反
 
 ```halcon
-scale_image(GrayImage, ImageScale, 1.5, -30)
+invert_image(GrayImage, InvertImage)
 ```
 
-线性灰度变换：`dst = src × Mult + Add`。Mult 增益 > 1 拉大差异，Add 偏移调整亮度。
+> **应用场景**：当目标区域灰度低于背景灰度时，取反操作可改善后续分割效果。
 
-### `invert_image`（取反）
+### 图像增强
 
 ```halcon
-invert_image(Image, ImageInvert)
+emphasize(GrayImage, ImageEmphasize, Width, Height, 2)
 ```
 
-灰度取反：`dst = 255 - src`。某些算子对"暗背景亮目标"效果更好（如分水岭）。
+> **应用场景**：增强图像局部对比度以突出细节信息，适用于光照不足或对比度偏低的图像。
+
+> **策略依据**：当图像整体对比度偏低、细节表现不足时 -> 调用 `emphasize` 提升对比度。
+
+### 灰度拉伸
+
+```halcon
+scale_image(GrayImage, ImageScaled, 2.5, -40)
+```
+
+> **参数说明**：Mult（乘数因子），Add（偏移量）-> 新像素 = 原像素 x Mult + Add
+
+> **应用场景**：通过线性变换手动调整灰度分布范围，扩大目标区域与背景区域的灰度差异。
+
+> **策略依据**：当目标灰度范围狭窄且背景灰度分布混杂时 -> 用 `scale_image` 拉开距离。
+
+### 均值滤波（中值滤波）
+
+```halcon
+median_image(Image, ImageMedian, 'circle', 2, 'mirrored')
+```
+
+> **应用场景**：在去除噪声的同时保留边缘信息，较高斯滤波具备更优的边缘保持特性。
 
 ### 高斯滤波
 
@@ -597,324 +669,493 @@ invert_image(Image, ImageInvert)
 gauss_filter(Image, ImageGauss, 5)
 ```
 
-平滑噪声的同时保留边缘结构，比均值滤波更自然。
+> **应用场景**：图像平滑与去噪处理，常用于分割操作前的预处理阶段。
 
 ---
 
-## 18. 边缘检测
+## 4. 边缘检测
 
-### `sobel_amp`
-
-```halcon
-sobel_amp(Image, EdgeAmplitude, "sum_abs", 3)
-```
-
-Sobel 算子计算梯度幅值，速度快，适合初步定位。
-
-### `sobel_dir`
+### Sobel 边缘
 
 ```halcon
-sobel_dir(Image, EdgeAmplitude, EdgeDirection, "sum_abs", 3)
+sobel_amp(Image, EdgeAmplitude, 'sum_abs', 3)
+sobel_dir(ImageReduced, EdgeAmplitude, EdgeDirection, 'sum_abs', 3)
 ```
 
-同时输出梯度幅值 + 方向，适合 Hough 直线检测等需要方向信息的场景。
+> **参数说明**：`'sum_abs'` 表示取水平和垂直方向的绝对值之和，`3` 为滤波器大小。
 
-### `laplace_of_gauss` + `zero_crossing`
+> **应用场景**：快速获取边缘强度响应图，适用于边缘特征显著的目标。`sobel_dir` 不仅得到幅度还得到方向，可用于后续霍夫变换。
+
+> **策略依据**：当需要快速获取边缘响应时 -> `sobel_amp`；需要边缘方向信息 -> `sobel_dir`。
+
+### Canny 边缘
 
 ```halcon
-laplace_of_gauss(Image, ImageLaplace, 3)
-zero_crossing(ImageLaplace, RegionZeroCrossing)
+edges_image(Image, ImaAmp, ImaDir, 'canny', 1, 'nms', 20, 40)
 ```
 
-LoG 算子（高斯拉普拉斯联合滤波）抗噪强，零交叉对应真实边缘。
+> **参数说明**：`'canny'` 算法，`1` 是平滑尺度，`'nms'` 非极大值抑制，`20` 低阈值，`40` 高阈值。
 
-### `edges_image`（Canny）
+> **应用场景**：高精度边缘检测，相较 Sobel 算子具备更细且更连续的边缘响应，适用于精确定位需求。配合 `skeleton` 可得到单像素骨架，配合 `gen_contours_skeleton_xld` 可得到亚像素轮廓。
 
 ```halcon
-edges_image(Img, Amp, Dir, "canny", 1, "nms", 20, 40)
+threshold(ImaAmp, Region, 1, 255)
+skeleton(Region, Skeleton)
+gen_contours_skeleton_xld(Skeleton, Contours, 1, 'filter')
 ```
 
-高级边缘检测，支持 Canny/Deriche/Shen 等滤波器，是目前最稳定的边缘检测方法。
+> **策略依据**：当需求为精确且连续的边缘时 -> Canny；需要亚像素级边缘 -> `edges_sub_pix`。
+
+### 亚像素边缘
+
+```halcon
+edges_sub_pix(GrayImage, Edges, 'canny', 2, 12, 22)
+```
+
+> **应用场景**：高精度尺寸测量场景，如几何量测、缺陷边界的亚像素级定位。
+
+### Laplace 边缘 + 过零点检测
+
+```halcon
+laplace_of_gauss(GrayImage, ImageLaplace, 0.5)
+zero_crossing(ImageLaplace, EdgeZeroCrossing)
+```
+
+> **应用场景**：检测图像灰度函数的过零点位置，边缘定位精度较高，但受噪声影响较为显著。
+
+> **策略依据**：当需求为精准的过零点边缘定位时 -> Laplace of Gauss + Zero Crossing。
 
 ---
 
-## 19. 阈值分割与区域处理
-
-### `threshold`
+## 5. 频域滤波
 
 ```halcon
-threshold(Image, Region, MinGray, MaxGray)
+gen_lowpass(I1LP, 0.1, 'none', 'dc_center', Width, Height)
+fft_generic(Image, ImageFFT, 'to_freq', -1, 'sqrt', 'dc_center', 'complex')
+convol_fft(ImageFFT, I1LP, ImageConvol)
+fft_generic(ImageConvol, ImageFFT1, 'from_freq', 1, 'sqrt', 'dc_center', 'complex')
 ```
 
-根据灰度范围进行二值化分割。目标和背景灰度有明显差异时的首选方法。
+> **流程说明**：时域 -> 频域（FFT）-> 频域滤波 -> 频域 -> 时域（逆 FFT）
 
-### `connection`（连通域分析）
+> **应用场景**：滤除周期性噪声（如纹理背景干扰），保留图像主体结构轮廓。
 
-```halcon
-connection(Region, ConnectedRegions)
-```
-
-将相连的像素点分组为独立区域。threshold 后把多个目标拆成单个对象。
-
-### `select_shape`（形状筛选）
-
-```halcon
-select_shape(Regions, SelectedRegions, 'area', 'and', 3000, 3300)
-```
-
-| 特征 | 说明 |
-|------|------|
-| `'area'` | 面积 |
-| `'anisometry'` | 各向异性（长宽比） |
-| `'width'` / `'height'` | 宽 / 高 |
-| `'circularity'` | 圆度 |
-| `'convexity'` | 凸度 |
+> **策略依据**：当图像存在周期性纹理干扰或摩尔纹时 -> 想到频域滤波，构造滤波器在频域中抑制特定频率。
 
 ---
 
-## 20. 区域生长与分水岭分割
+## 6. 图像分割
 
-### `regiongrowing`
-
-```halcon
-regiongrowing(Image, Regions, 1, 1, 5, 200)
-```
-
-从种子点出发，合并灰度相似的邻域像素。不需要预设灰度阈值，适合复杂纹理、缺陷检测。
-
-参数：RowDist, ColDist, MaxDist, MaxGrayDiff
-
-### `regiongrowing_mean`
+### 阈值分割
 
 ```halcon
-regiongrowing_mean(Image, Regions, 5, 5, 5, 100)
+threshold(GrayImage, Regions, MinGray, MaxGray)
 ```
 
-带均值约束的区域生长，结果更均匀。
+> **应用场景**：当目标区域与背景存在显著灰度差异时，阈值分割是最为高效的图像分割方式。
 
-### `watersheds_threshold`
+> **策略依据**：当目标灰度显著高于或低于背景时 -> 先转灰度 -> `threshold` 设定灰度区间直接分割。
+
+### 区域生长
 
 ```halcon
-watersheds_threshold(Image, Basins, 50)
+regiongrowing(Image, Regions, 1, 1, 5, 500)
 ```
 
-分水岭算法，适合接触/粘连物体的分割（细胞、颗粒、焊点）。
+> **参数说明**：第 1、2 个参数为行列邻域半径，第 3 个为灰度容差，第 4 个为最小区域面积。
 
-### 辅助算子
+> **应用场景**：当目标灰度分布不均匀但局部区域灰度连续时，区域生长算法能够有效分割出完整目标区域。
 
-| 算子 | 作用 |
-|------|------|
-| `shape_trans(Region, InnerCircle, "inner_center")` | 获取区域最大内切圆 |
-| `area_center(Regions, Area, Row, Column)` | 计算区域面积和质心 |
-| `inner_circle(Region, Row, Column, Radius)` | 返回内切圆 |
+> **策略依据**：当阈值分割无法一次性获取完整目标区域时 -> 用 `regiongrowing` 基于局部相似性生长。
+
+### 带种子点的区域生长
+
+```halcon
+regiongrowing_mean(Image, Regions, Row, Column, 25, 100)
+```
+
+> **应用场景**：在已知目标大致位置（种子点）的前提下，以此为起始点向外生长以获取完整区域。
+
+### 连通域分析
+
+```halcon
+connection(Regions, ConnectedRegions)
+```
+
+> **应用场景**：将阈值分割后得到的多个分离区域拆分为独立区块，便于后续逐一分析与筛选。
+
+> **策略依据**：分割后获取多个区域时 -> `connection` 把它们拆开 -> 逐个分析。
+
+### 分水岭分割
+
+```halcon
+watersheds(Image, Basins, Watersheds)
+watersheds_threshold(Image, Basins, 60)
+```
+
+> **应用场景**：分割相互接触或粘连的目标对象，广泛应用于细胞分割、颗粒计数等领域。
+
+> **策略依据**：当多个目标粘连难以分离时 -> 用分水岭算法从灰度低谷处分割。
 
 ---
 
-## 21. 形状特征提取
+## 7. 形状特征提取
+
+### 形状选择
+
+```halcon
+select_shape(ConnectedRegions, SelectedRegions, 'area', 'and', Min, Max)
+```
+
+> **常用特征**：`'area'` 面积、`'anisometry'` 各向异性（非等轴性）、`'circularity'` 圆度、`'compactness'` 紧凑度、`'convexity'` 凸度、`'rectangularity'` 矩形度。
+
+```halcon
+// 多条件筛选
+select_shape(ConnectedRegions, SelectedRegions, ['area', 'anisometry'], 'and', [500, 1], [2000, 1.7])
+```
+
+> **应用场景**：根据预设的形状特征阈值筛选目标区域，例如保留面积在 500~2000 像素区间且各向异性适中的区域。
+
+> **策略依据**：分割后得到大量候选区域时 -> 用 `select_shape` 筛选出真正关心的目标 -> 基于面积、长宽比、圆度等特征。
 
 ### 最小外接矩形
 
 ```halcon
-* 平行外接矩形
 smallest_rectangle1(Regions, Row1, Column1, Row2, Column2)
-gen_rectangle1(Rects, Row1, Column1, Row2, Column2)
+gen_rectangle1(Rectangle, Row1, Column1, Row2, Column2)
 
-* 旋转外接矩形（最小面积）
-smallest_rectangle2(Regions, Row, Column, Phi, Length1, Length2)
-gen_rectangle2(Rects, Row, Column, Phi, Length1, Length2)
+smallest_rectangle2(Regions, Row3, Column3, Phi, Length1, Length2)
+gen_rectangle2(Rectangle1, Row3, Column3, Phi, Length1, Length2)
 ```
 
-| 算子 | 特点 | 使用场景 |
-|------|------|----------|
-| `smallest_rectangle1` | 平行于坐标轴 | 粗略框选、显示用 |
-| `smallest_rectangle2` | 可旋转、面积最小 | 精确描述目标方向 |
+> **应用场景**：计算目标区域的最小外接矩形，`rectangle1` 输出轴对齐矩形，`rectangle2` 输出带旋转角度的最小包围盒。
 
-### `area_holes`
+### 内接圆
+
+```halcon
+inner_circle(Regions, Row, Column, Radius)
+disp_circle(WindowHandle, Row, Column, Radius)
+```
+
+> **应用场景**：计算区域的最大内接圆，适用于圆形目标检测及内径测量。
+
+### 孔洞面积
 
 ```halcon
 area_holes(Regions, Area)
 ```
 
-计算区域内部空洞的总面积，用于检测目标内部是否有空洞（如 PCB 焊盘空缺）。
+> **应用场景**：统计区域内部孔洞的总面积，用于缺陷检测中孔洞类缺陷的判定。
 
 ---
 
-## 22. 灰度特征提取
+## 8. 灰度特征与纹理分析
 
-### `gray_features`
+### 灰度特征
 
 ```halcon
 gray_features(SelectedRegions, Image, 'min', MinDisp)
 gray_features(SelectedRegions, Image, 'max', MaxDisp)
-```
-
-| 项目 | 说明 |
-|------|------|
-| 算子说明 | 计算区域内的灰度统计特征 |
-| 支持特征 | `'min'`、`'max'`、`'mean'`、`'deviation'`、`'plane_deviation'` |
-| 使用场景 | 评估区域亮度、区分亮暗不同的目标 |
-| 联想法 | 形状差不多但有的亮有的暗？→ 用 gray_features 看灰度差异 |
-
-### `area_center_gray`
-
-```halcon
 area_center_gray(SelectedRegions, Image, Area, Row, Column)
-```
-
-基于灰度值计算区域的"加权"面积和中心（灰度重心）。目标亮度不均匀时，比几何质心更准确。
-
-### `select_gray`
-
-```halcon
 select_gray(SelectedRegions, Image, SelectedRegions1, 'mean', 'and', 100, 250)
 ```
 
-基于灰度特征筛选区域（形状筛选的"灰度版"）。与 `select_shape` 互补。
+> **常用特征**：`'min'` 最小灰度、`'max'` 最大灰度、`'mean'` 平均灰度、`'deviation'` 灰度标准差。
 
----
+> **应用场景**：基于灰度统计量进行区域筛选，例如保留平均灰度在 100~250 区间内的区域。
 
-## 23. 纹理分析
+> **策略依据**：当形状特征相似但灰度特征不同时 -> 用 `gray_features` 提取灰度特征区分；需要按灰度筛选 -> `select_gray`。
 
-### `gen_cooc_matrix`
-
-```halcon
-gen_cooc_matrix(SelectedRegions, Image, Matrix, 6, 0)
-```
-
-生成灰度共生矩阵（GLCM），统计相邻像素的灰度对出现频率。参数：区域、图像、输出矩阵、灰度级数、方向（0° 水平 / 45° 对角 / 90° 垂直 / 135° 反对角）。
-
-### `cooc_feature_image`
+### 纹理分析（灰度共生矩阵）
 
 ```halcon
-cooc_feature_image(SelectedRegions, Image, 6, 0, Energy, Correlation, Homogeneity, Contrast)
+gen_cooc_matrix(Region, Image, Matrix, 6, 0)
+cooc_feature_image(Region, Image, 6, 0, Energy, Correlation, Homogeneity, Contrast)
 ```
 
-从 GLCM 计算 4 个纹理特征：
+> **输出特征说明**：
+> - `Energy` - 能量（ASM）：纹理的均匀程度
+> - `Correlation` - 相关性：灰度线性依赖关系
+> - `Homogeneity` - 同质性：纹理的局部均匀性
+> - `Contrast` - 对比度：灰度差异大小
 
-| 特征 | 含义 |
-|------|------|
-| Energy（能量） | 纹理越均匀 → 能量越高 |
-| Correlation（相关性） | 纹理有方向性 → 相关性强 |
-| Homogeneity（同质性） | 局部纹理越一致 → 同质性越高 |
-| Contrast（对比度） | 灰度差异越大 → 对比度越高 |
+> **应用场景**：区分不同纹理特征类型，适用于光滑表面与粗糙表面区分、纹理类缺陷检测等场景。
 
-**联想法：** 目标亮度和形状都差不多，但表面粗糙度不同？→ GLCM 纹理分析。
+> **策略依据**：当目标与背景灰度接近但纹理存在差异时 -> 构建灰度共生矩阵 -> 提取纹理特征分类。
 
 ---
 
-## 24. 形态学操作
+## 9. 形态学操作
 
-### `erosion_circle`
+### 腐蚀
 
 ```halcon
-erosion_circle(SelectedRegions, RegionErosion, 21)
+erosion_circle(Region, RegionErosion, Radius)
 ```
 
-用圆形结构元素对区域进行腐蚀操作，消除细小噪声连接，分离粘连目标。
+> **应用场景**：去除微小噪点区域、断开粘连区域、收缩目标区域边界。
 
-### 形态学操作对照
+> **策略依据**：当区域边缘存在不规则突起或毛刺时 -> 腐蚀；区域间有细连接 -> 腐蚀断开。
 
-| 算子 | 效果 | 场景 |
-|------|------|------|
-| `erosion_circle` | 收缩区域、消除细小突起 | 断开粘连、去毛刺 |
-| `dilation_circle` | 膨胀区域、填充小孔 | 填补断裂、扩大区域 |
-| `opening` | 先腐蚀后膨胀（开运算） | 移除小物体 + 平滑轮廓 |
-| `closing` | 先膨胀后腐蚀（闭运算） | 填充小孔 + 桥接缝隙 |
-
-### 区域逻辑运算
-
-| 算子 | 作用 |
-|------|------|
-| `intersection` | 区域求交 |
-| `difference` | 区域求差 |
-| `union2` | 区域合并 |
-
----
-
-## 25. 霍夫变换与直线检测
+### 膨胀
 
 ```halcon
-sobel_dir(Img, Amp, Dir, "sum_abs", 3)       * ① 边缘检测（带方向）
-threshold(Amp, R2, 59, 179)                   * ② 筛选边缘点
-reduce_domain(Dir, R2, DirReduced)            * ③ 只保留边缘点的方向
-hough_lines_dir(DirReduced, HImg, Lines, 2, 4, "mean", 5, 50, 5, 5, "true", Angle, Dist)
-                                                * ④ 霍夫变换检测直线
-gen_region_hline(R3, Angle, Dist)              * ⑤ 画直线验证
+dilation_circle(Region, RegionDilation, Radius)
 ```
 
-| 算子 | 作用 |
-|------|------|
-| `hough_lines_dir` | 利用方向信息更快更准地检测直线 |
-| `gen_region_hline` | 将检测到的直线画出来验证 |
+> **应用场景**：填充目标内部孔洞、连接断裂区域、外扩目标边界。
 
----
+> **策略依据**：当区域内部存在孔洞时 -> 膨胀填充；目标断裂成多段 -> 膨胀连接。
 
-## 26. 骨架化与轮廓提取
+### 开运算（先腐蚀后膨胀）
 
 ```halcon
-edges_image(Img, Amp, Dir, "canny", 1, "nms", 20, 40)
-threshold(Amp, Region, 1, 255)
-skeleton(Region, Skeleton)                    * 细化为单像素骨架
-gen_contours_skeleton_xld(Skeleton, Contours, 1, "filter")  * 转亚像素轮廓
+opening_circle(Regions, RegionOpening, 5)
+opening_rectangle1(Regions, RegionOpening1, 10, 10)
 ```
 
-- **骨架化** → 提取区域的"中心线"，分析拓扑结构
-- **转 XLD** → 支持亚像素精度和几何拟合（直线/圆拟合、曲率计算）
+> **应用场景**：去除细小噪点、切断狭窄连接。`opening_rectangle1` 支持矩形结构元素，适用于特定方向上的去噪处理。
 
----
+> **策略依据**：当区域周围存在离散噪点时 -> 开运算去除；区域间有细丝连接 -> 开运算断开。
 
-## 27. 频域处理
-
-> 空间域搞不定的周期性噪声，频域轻松解决。
+### 闭运算（先膨胀后腐蚀）
 
 ```halcon
-fft_generic(Img, FFT, "to_freq", -1, "sqrt", "dc_center", "complex")    * ① 空间→频域
-gen_lowpass(LP, 0.1, "none", "dc_center", w, h)                         * ② 生成低通滤波器
-convol_fft(FFT, LP, Filtered)                                            * ③ 频域滤波
-fft_generic(Filtered, Result, "from_freq", 1, "sqrt", "dc_center", "complex")  * ④ 频域→空间
+// 自定义结构元素
+gen_ellipse(Ellipse, 100, 100, 0, 11, 13)
+closing(Regions, Ellipse, RegionClosing)
+
+// 或者直接使用圆形结构元素
+closing_circle(Region, RegionClosing, Radius)
 ```
 
-**什么时候用频域？**
-- 图像有周期性纹理噪声（如网格、条纹）
-- 需要精确的频率截止（空间域难以做到）
+> **应用场景**：填充目标内部孔洞、闭合断裂轮廓线。
+
+> **策略依据**：当目标内部存在孔洞或裂缝时 -> 闭运算填充；边缘断裂 -> 闭运算连接。
+
+### 结构元素选择逻辑
+
+| 结构元素形状 | 适用场景 | 算子 |
+|------------|---------|------|
+| 圆形 | 各向同性操作，通用 | `erosion_circle`, `dilation_circle`, `opening_circle`, `closing_circle` |
+| 矩形 | 特定方向操作 | `opening_rectangle1`, `erosion_rectangle1` |
+| 椭圆 | 各向异性 | `gen_ellipse` 创建后传入 `closing` / `opening` |
 
 ---
 
-## 28. 算子选择思维导图
+## 10. 灰度形态学
 
+```halcon
+gray_erosion_shape(GrayImage, ImageMin, 11, 11, 'octagon')
+gray_dilation_shape(GrayImage, ImageMax, 11, 11, 'octagon')
+gray_opening_shape(GrayImage, ImageOpening, 11, 11, 'octagon')
+gray_closing_shape(GrayImage, ImageClosing, 11, 11, 'octagon')
 ```
-输入图像
-│
-├─ 光照均匀 ────────────── threshold（简单高效）
-│
-├─ 光照不均 ────────────── dyn_threshold（动态补偿）
-│
-├─ 需要边缘检测 ──
-│   ├─ 快速定位 ────────── sobel_amp / sobel_dir
-│   ├─ 抗噪检测 ────────── laplace_of_gauss + zero_crossing
-│   └─ 精确提取 ────────── edges_image（Canny）
-│
-├─ 需要尺寸测量 ──
-│   ├─ 矩形 ────────────── gen_measure_rectangle2 + measure_pairs
-│   └─ 圆弧 ────────────── gen_measure_arc + measure_pairs
-│
-├─ 需要找直线 ──────────── hough_lines / fit_line_contour_xld
-│
-├─ 需要形态学处理 ──
-│   ├─ 去噪断连 ────────── opening / erosion_circle
-│   ├─ 填补桥接 ────────── closing / dilation_circle
-│   └─ 分离粘连 ────────── watersheds / erosion_circle
-│
-├─ 需要区域筛选 ──
-│   ├─ 按形状 ──────────── select_shape（面积/长度/圆度）
-│   └─ 按灰度 ──────────── select_gray（均值/方差）
-│
-└─ 需要特征提取 ──
-    ├─ 灰度特征 ────────── gray_features / area_center_gray
-    ├─ 纹理特征 ────────── gen_cooc_matrix + cooc_feature_image
-    └─ 形状特征 ────────── smallest_rectangle1/2 / area_holes
+
+> **参数说明**：`11, 11` 为结构元素大小，`'octagon'` 为八边形结构元素。
+
+> **应用场景**：直接在灰度图像上执行形态学变换，适用于以下操作：
+> - `gray_erosion`：去除亮区域中的暗细节
+> - `gray_dilation`：去除暗区域中的亮细节
+> - `gray_opening`：去除亮小点（白顶帽基础）
+> - `gray_closing`：填充暗小孔（黑底帽基础）
+
+> **策略依据**：当需要在形态学层面处理图像但避免二值化信息损失时 -> 直接在灰度图上做灰度形态学。
+
+---
+
+## 11. 边界提取与孔洞填充
+
+### 边界提取
+
+```halcon
+boundary(Region, RegionBorder, 'inner')
+```
+
+> **参数说明**：`'inner'` 内边界，`'outer'` 外边界。
+
+> **应用场景**：提取目标区域边界轮廓，用于周长计算与形状分析。
+
+### 孔洞填充
+
+```halcon
+fill_up_shape(Regions, RegionFillUp, 'area', 0, 50000)
+```
+
+> **应用场景**：填充面积在指定阈值范围内的孔洞区域，常用于消除目标内部暗点干扰。
+
+```halcon
+// 综合示例：提取大目标的外边界
+threshold(GrayImage, Regions, 0, 83)
+connection(Regions, ConnectedRegions)
+select_shape(ConnectedRegions, SelectedRegions, 'area', 'and', 2440000, 9999999)  // 选大目标
+closing_circle(SelectedRegions, RegionClosing, 71)  // 闭运算填充内部空洞
+boundary(RegionClosing, RegionBorder, 'inner')  // 提取内边界
 ```
 
 ---
 
-> **文档维护** 本文档基于内部项目实战经验编写，将随项目推进持续更新。
+## 12. 模板匹配（NCC + 形状匹配）
+
+### NCC 灰度匹配（归一化积相关）
+
+```halcon
+* 创建模板
+create_ncc_model(TemplateImage, 'auto', 0, 0, 'auto', 'use_polarity', ModelID)
+
+* 执行匹配
+find_ncc_model(SearchImage, ModelID, 0, 0, 0.5, 1, 0.5, 'true', 0, Row, Column, Angle, Score)
+
+* 显示结果
+gen_rectangle1(DetectionResult, Row-10, Column-10, Row+10, Column+10)
+
+* 清理模型
+clear_ncc_model(ModelID)
+```
+
+> **`find_ncc_model` 参数说明**：
+> - 角度范围：`0` ~ `0`（不旋转搜索）
+> - Score 阈值：`0.5`（匹配得分 >= 0.5 才认为匹配成功）
+> - 最大匹配数：`1`（最多返回 1 个结果）
+> - 金字塔层数：`0.5`
+> - SubPixel 精度：`'true'`
+
+> **应用场景**：适用于光照条件稳定的场景下的快速匹配，例如固定工位的产品定位任务。
+
+> **策略依据**：在光照条件良好且目标纹理清晰的情况下 -> NCC 匹配又快又准。
+
+### 交互式模板截取 + NCC 匹配（完整流程）
+
+```halcon
+* 读图转灰
+read_image(Image, 'group_photo.jpg')
+rgb1_to_gray(Image, GrayImage)
+
+* 交互式框选模板
+draw_rectangle2(WindowHandle, Row, Column, Phi, Length1, Length2)
+gen_rectangle2(TemplateRect, Row, Column, Phi, Length1, Length2)
+reduce_domain(GrayImage, TemplateRect, TemplateImage)
+
+* 创建 NCC 模型
+create_ncc_model(TemplateImage, 'auto', 0, 0, 'auto', 'use_polarity', ModelID)
+
+* 匹配
+find_ncc_model(GrayImage, ModelID, 0, 0, 0.5, 1, 0.5, 'true', 0, RowMatch, ColumnMatch, AngleMatch, Score)
+
+* 绘制结果
+dev_set_color('red')
+dev_set_draw('margin')
+for i := 0 to |Score| - 1 by 1
+    gen_rectangle2(MatchRect, RowMatch[i], ColumnMatch[i], AngleMatch[i], Length1, Length2)
+    dev_display(MatchRect)
+    disp_message(WindowHandle, 'Score: ' + Score[i]$'.3f', 'window', RowMatch[i] - 40, ColumnMatch[i] - 40, 'red', 'false')
+endfor
+```
+
+### 形状匹配（通用形状模型）
+
+```halcon
+* 创建模板区域
+gen_rectangle1(ModelRegion, Row1, Col1, Row2, Col2)
+reduce_domain(Image, ModelRegion, TemplateImage)
+
+* 创建并训练形状模型
+create_generic_shape_model(ModelID)
+set_generic_shape_model_param(ModelID, 'metric', 'use_polarity')
+train_generic_shape_model(TemplateImage, ModelID)
+
+* 获取模型轮廓
+get_shape_model_contours(ModelContours, ModelID, 1)
+area_center(ModelRegion, ModelRegionArea, RefRow, RefColumn)
+vector_angle_to_rigid(0, 0, 0, RefRow, RefColumn, 0, HomMat2D)
+affine_trans_contour_xld(ModelContours, TransContours, HomMat2D)
+
+* 执行匹配
+find_generic_shape_model(TestImage, ModelID, MatchResultID, NumMatchResult)
+
+* 获取匹配结果
+for I := 0 to NumMatchResult - 1 by 1
+    get_generic_shape_model_result_object(MatchContour, MatchResultID, I, 'contours')
+    get_generic_shape_model_result(MatchResultID, I, 'row', Row)
+    get_generic_shape_model_result(MatchResultID, I, 'column', Column)
+    get_generic_shape_model_result(MatchResultID, I, 'angle', Angle)
+    get_generic_shape_model_result(MatchResultID, I, 'score', Score)
+    get_generic_shape_model_result(MatchResultID, I, 'scale_row', ScaleRow)
+    get_generic_shape_model_result(MatchResultID, I, 'scale_column', ScaleColumn)
+endfor
+```
+
+> **适用场景**：当目标具有明显形状特征且可能存在旋转或尺度变化时，形状匹配较 NCC 具有更强的鲁棒性。
+
+> **策略依据**：当目标轮廓清晰且可能存在旋转或尺度变化时 -> 形状匹配；光照变化 -> 形状匹配也比 NCC 更稳定。
+
+### 匹配方法选择对比
+
+| 方法 | 优点 | 缺点 | 适用场景 |
+|-----|------|------|---------|
+| NCC（归一化积相关） | 速度快、实现简单 | 对光照变化敏感、不支持缩放 | 光照稳定的定位 |
+| 形状匹配（Shape-Based） | 鲁棒性强、支持旋转/缩放 | 速度较慢、需要轮廓清晰 | 形状特征明显的目标 |
+
+---
+
+## 13. 霍夫直线检测
+
+```halcon
+* 先截取 ROI
+rectangle1_domain(Image, ImageReduced, Row1, Col1, Row2, Col2)
+
+* 提取边缘方向
+sobel_dir(ImageReduced, EdgeAmplitude, EdgeDirection, 'sum_abs', 3)
+
+* 从幅度图中提取兴趣区域
+threshold(EdgeAmplitude, Regions, Min, Max)
+reduce_domain(EdgeDirection, Regions, EdgeDirectionReduced)
+
+* 霍夫直线检测（调整 threshold 控制直线数量）
+hough_lines_dir(EdgeDirectionReduced, HoughImage, Lines, 2, 4, 'mean', 5, 50, 5, 5, 'true', Angle, Dist)
+
+* 画线显示
+gen_region_hline(Regions, Angle, Dist)
+```
+
+> **`hough_lines_dir` 参数说明**：
+> - `2, 4`：角度分辨率相关
+> - `'mean'`：角度计算方式
+> - `5`：平滑尺度
+> - `50`：阈值（控制检测到的直线数量，越大越少）
+> - `5, 5`：最小线段长度/间隙
+
+> **应用场景**：检测图像中的直线特征，适用于 PCB 板边缘检测、晶圆划痕定位、工件边缘提取等场景。
+
+> **策略依据**：当任务涉及直线特征检测时 -> Sobel 提取边缘方向 -> Hough 变换检测直线。
+
+---
+
+## 14. HALCON 导出 C++
+
+HALCON 代码可通过"导出"功能转为 C++ 代码，在 Visual Studio 中集成：
+
+```halcon
+* HALCON 端代码
+read_image(Image, 'abcde.jpg')
+get_image_size(Image, Width, Height)
+dev_open_window(0, 0, Width, Height, 'black', WindowHandle)
+dev_set_part(0, 0, Height-1, Width-1)
+dev_display(Image)
+```
+
+### VS 配置要点
+
+- **C/C++ -> 常规 -> 附加包含目录**：放 HALCON 的 include 路径
+- **链接器 -> 常规 -> 附加库目录**：放 HALCON 的 lib 路径
+- **链接器 -> 输入 -> 附加依赖项**：放 HALCON 的 .lib 文件
+- **安装 MFC 工具**（如使用 MFC 界面）
+
+> **应用场景**：将 HALCON 原型算法部署至上位机软件系统中，实现产线级自动化检测应用。
+
+---
+
+> **总结**：HALCON 传统算法的核心技术路线可概括为 **"预处理 -> 分割 -> 特征提取 -> 判定"** 四阶段流程。
+> 处理流程决策：首先评估是否需要灰度转换与图像增强；然后选择合适的分割策略（阈值分割、区域生长、分水岭算法）；最后依据分割结果决定后续形态学处理与特征筛选方案。
+> 具体而言，需进一步确认是否引入形态学处理、选取何种特征进行筛选，以及最终判定方式（形状特征、灰度特征或模板匹配）。
+
