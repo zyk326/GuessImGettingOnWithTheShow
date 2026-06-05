@@ -1,6 +1,6 @@
 ﻿# 算法 DRI-Cover 实战攻略
 
-> **版本** v2.0 (专业修订版)  
+> **版本** v3.0 (专业修订版)  
 > **来源** 内部项目经验总结  
 > **适用范围** 涵盖深度学习算法与 HALCON 传统算法两大技术路线
 
@@ -470,6 +470,7 @@ class YOLO_API YOLOV11Seg { ... };
 12. [模板匹配（NCC + 形状匹配）](#12-模板匹配ncc--形状匹配)
 13. [霍夫直线检测](#13-霍夫直线检测)
 14. [HALCON 导出 C++](#14-halcon-导出-c)
+15. [综合案例：基于轮廓比较的大小边变形检测](#15-综合案例基于轮廓比较的大小边变形检测)
 
 ---
 
@@ -1153,6 +1154,270 @@ dev_display(Image)
 
 > **应用场景**：将 HALCON 原型算法部署至上位机软件系统中，实现产线级自动化检测应用。
 
+
+## 15. 综合案例：基于轮廓比较的大小边变形检测
+
+### 15.1 项目背景与需求
+
+在工业质检场景中，**大小边变形**是指产品边缘轮廓与标准轮廓之间存在局部或整体的偏移偏差，常见于冲压件、注塑件等制造工艺中。本案例通过比较产品**外轮廓**与**内轮廓**之间的距离分布，定量评估变形程度，并据此判定产品是否合格。
+
+> **检测目标**：识别产品边缘是否存在局部凹陷/凸起（局部变形）或整体偏移（大小边缺陷）。
+
+### 15.2 算法流程概览
+
+```
+输入图像
+  |
+  v
+[预处理] RGB转灰度 -> 中值滤波
+  |
+  v
+[外轮廓提取] 全局阈值分割(binary_threshold) -> 连通域分析 -> 形状筛选 -> 填充孔洞 -> 开运算
+  |
+  v
+[内轮廓提取] 腐蚀外轮廓 -> 局部自适应阈值(var_threshold) -> 连通域分析 -> 闭运算 -> 填充孔洞 -> 开运算
+  |
+  v
+[轮廓生成] gen_contour_region_xld (外轮廓 + 内轮廓)
+  |
+  v
+[轮廓比较] distance_contours_xld (point_to_point) -> 提取距离属性
+  |
+  v
+[变形评估] 计算距离的均值(Mean)与标准差(Deviation)
+  |
+  v
+[判定逻辑] 均值超范围 -> 整体偏移；标准差超阈值 -> 局部变形
+```
+
+### 15.3 外轮廓提取
+
+外轮廓提取的目标是获取产品的最外侧边界区域。
+
+```halcon
+* 灰度转换与中值滤波
+rgb1_to_gray(Image, GrayImage)
+median_image(GrayImage, ImageMedian, 'circle', 5, 'mirrored')
+
+* 自动全局阈值分割 - 提取亮部区域
+* 使用 smooth_histo 模式（平滑直方图）而非 Otsu，以适应更复杂的灰度分布
+binary_threshold(ImageMedian, Region, 'smooth_histo', 'light', UsedThreshold)
+
+* 连通域拆分
+connection(Region, ConnectedRegions)
+
+* 基于蓬松度(bulkiness)与面积筛选
+* bulkiness = 面积 / 最接近椭圆的面积，值越大表示区域越不规则
+select_shape(ConnectedRegions, SelectedRegions, ['bulkiness', 'area'], 'and', [0.5, 600000], [1.6, 2000000])
+
+* 保留面积最大区域的 70%
+select_shape_std(SelectedRegions, SelectedRegions3, 'max_area', 70)
+
+* 孔洞填充 + 开运算去除毛刺
+fill_up(SelectedRegions3, RegionFillUp)
+opening_circle(RegionFillUp, RegionInner, 75)
+```
+
+> **算子组合逻辑**：
+> - `binary_threshold('smooth_histo', 'light')`：自动计算全局阈值，提取亮色目标区域
+> - `select_shape('bulkiness')`：**蓬松度**筛选可有效排除狭长或不规则的干扰区域
+> - `select_shape_std('max_area', 70)`：保留最大区域及其 70% 的连通子区域，确保主区域完整
+> - `fill_up + opening_circle`：填充内部孔洞后执行开运算，去除边缘微小突起
+
+### 15.4 内轮廓提取
+
+内轮廓提取是算法的核心——通过在外轮廓内部一定偏移距离处，用局部自适应阈值分割出内边界。
+
+```halcon
+* 将外轮廓向内腐蚀一定像素，确定内轮廓搜索区域
+erosion_circle(RegionInner, RegionErosion, 5)
+
+* 将搜索区域从原图中裁剪出来
+reduce_domain(GrayImage, RegionErosion, ImageReduced)
+
+* 中值滤波去噪
+median_image(ImageReduced, ImageGauss, 'circle', 3, 'mirrored')
+
+* 局部自适应阈值分割 - 提取暗部区域
+* 在 5x5 邻域内计算均值与标准差，适用于光照不均匀场景
+var_threshold(ImageGauss, Region3, 5, 5, 0.04, 2, 'dark')
+
+* 连通域分析 + 面积筛选
+connection(Region3, ConnectedRegions1)
+select_shape(ConnectedRegions1, SelectedRegions1, 'area', 'and', 35, 99999)
+
+* 合并、闭运算、填充孔洞、开运算
+union1(SelectedRegions1, RegionUnion)
+closing_circle(RegionUnion, RegionClosing, 500)
+connection(RegionClosing, ConnectedRegions2)
+fill_up(ConnectedRegions2, RegionFillUp)
+select_shape(RegionFillUp, SelectedRegions3, 'area', 'and', 1000000, 9999999)
+opening_circle(SelectedRegions3, RegionInner0, 355)
+```
+
+> **算子组合逻辑**：
+> - `erosion_circle`：将外轮廓向内收缩，限定后续分析的搜索范围
+> - `reduce_domain`：将图像域缩小到腐蚀后的区域内，减少计算量
+> - `var_threshold(5, 5, 0.04, 2, 'dark')`：**局部自适应阈值**——在 5x5 窗内计算局部均值和标准差，提取比局部背景暗的区域
+> - `closing_circle(500)`：大核闭运算连接断裂的内边缘，`500` 为较大半径，确保长距离断裂被桥接
+> - **空区域检测**：如果 `fill_up` 后仍无有效区域，说明边缘断裂严重（边缘残缺），直接判 NG
+
+### 15.5 轮廓生成与比较
+
+```halcon
+* 生成外轮廓的亚像素边缘
+gen_contour_region_xld(RegionInner, ContoursInner, 'border')
+
+* 生成内轮廓的亚像素边缘
+gen_contour_region_xld(RegionInner0, ContoursInner0, 'border')
+
+* 计算两个轮廓间的逐点距离（点到点模式）
+distance_contours_xld(ContoursInner, ContoursInner0, ContourOut, 'point_to_point')
+
+* 从结果轮廓中提取每个点的距离属性
+get_contour_attrib_xld(ContourOut, 'distance', DisValue)
+```
+
+> **关键算子说明**：
+> - `gen_contour_region_xld(, 'border')`：将区域边界转换为亚像素级 XLD 轮廓，精度高于像素级边界
+> - `distance_contours_xld(, 'point_to_point')`：计算两条轮廓间对应点的欧氏距离，输出带有 'distance' 属性的新轮廓
+> - `get_contour_attrib_xld('distance')`：提取每个轮廓点的距离值，得到一维距离数组
+
+### 15.6 变形判定逻辑
+
+```halcon
+* 计算距离数组的标准差 —— 反映局部变形程度
+tuple_deviation(DisValue, Deviation)
+
+* 计算距离数组的算术平均值 —— 反映整体偏移程度
+tuple_mean(DisValue, Mean)
+
+* 判定规则
+if (Mean < 15 or Mean > 30)
+    * 整体偏移（大小边）—— 均值超出正常范围
+    flagDis := 1
+elseif (Deviation > 2.5)
+    * 局部变形（凹凸）—— 标准差超过阈值
+    flageDev := 1
+endif
+```
+
+> **判定逻辑解读**：
+> - **均值（Mean）**：内外轮廓间距离的平均值，反映**整体偏移量**。正常产品应在一个固定的工艺范围内（如 15~30 像素），超出此范围则为整体大小边缺陷
+> - **标准差（Deviation）**：距离值的离散程度，反映**局部变形程度**。标准差小说明内外轮廓形态一致；标准差大说明存在局部凹陷或凸起
+
+| 指标 | 物理含义 | 超出阈值代表 |
+|------|---------|-------------|
+| Mean（均值） | 轮廓整体间距 | 整体冲压偏移（大小边） |
+| Deviation（标准差） | 轮廓间距波动 | 局部变形（凹陷/凸起） |
+
+### 15.7 完整代码框架
+
+```halcon
+* 初始化
+gen_empty_obj(EmptyObject)
+gen_empty_region(EmptyRegion)
+
+* 批量读取图像
+list_files('图像文件夹路径', ['files', 'follow_links', 'recursive'], ImageFiles)
+tuple_regexp_select(ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$', 'ignore_case'], ImageFiles)
+
+for Index := 0 to |ImageFiles| - 1 by 1
+    * ---- 1. 读取与预处理 ----
+    read_image(Image, ImageFiles[Index])
+    rgb1_to_gray(Image, GrayImage)
+    median_image(GrayImage, ImageMedian, 'circle', 5, 'mirrored')
+
+    * ---- 2. 外轮廓提取 ----
+    binary_threshold(ImageMedian, Region, 'smooth_histo', 'light', UsedThreshold)
+    connection(Region, ConnectedRegions)
+    select_shape(ConnectedRegions, SelectedRegions, ['bulkiness', 'area'], 'and', [0.5, 600000], [1.6, 2000000])
+    select_shape_std(SelectedRegions, SelectedRegions3, 'max_area', 70)
+    fill_up(SelectedRegions3, RegionFillUp)
+    opening_circle(RegionFillUp, RegionInner, 75)
+
+    * 空区域跳过
+    if (EmptyRegion == RegionInner or EmptyObject == RegionInner)
+        continue
+    endif
+
+    * ---- 3. 内轮廓提取 ----
+    erosion_circle(RegionInner, RegionErosion, 5)
+    reduce_domain(GrayImage, RegionErosion, ImageReduced)
+    median_image(ImageReduced, ImageGauss, 'circle', 3, 'mirrored')
+    var_threshold(ImageGauss, Region3, 5, 5, 0.04, 2, 'dark')
+    connection(Region3, ConnectedRegions1)
+    select_shape(ConnectedRegions1, SelectedRegions1, 'area', 'and', 35, 99999)
+    union1(SelectedRegions1, RegionUnion)
+    closing_circle(RegionUnion, RegionClosing, 500)
+    connection(RegionClosing, ConnectedRegions2)
+    fill_up(ConnectedRegions2, RegionFillUp)
+    select_shape(RegionFillUp, SelectedRegions3, 'area', 'and', 1000000, 9999999)
+    opening_circle(SelectedRegions3, RegionInner0, 355)
+
+    * 边缘残缺跳过（无内轮廓区域）
+    if (SelectedRegions3 == EmptyObject or SelectedRegions3 == EmptyRegion)
+        * 记录 NG 并跳过
+        continue
+    endif
+
+    * ---- 4. 轮廓生成与比较 ----
+    gen_contour_region_xld(RegionInner0, ContoursInner0, 'border')
+    gen_contour_region_xld(RegionInner, ContoursInner, 'border')
+    distance_contours_xld(ContoursInner, ContoursInner0, ContourOut, 'point_to_point')
+    get_contour_attrib_xld(ContourOut, 'distance', DisValue)
+
+    * ---- 5. 变形判定 ----
+    tuple_deviation(DisValue, Deviation)
+    tuple_mean(DisValue, Mean)
+
+    flagDis := 0
+    flageDev := 0
+    if (Mean < 15 or Mean > 30)
+        flagDis := 1            * 整体偏移
+    elseif (Deviation > 2.5)
+        flageDev := 1           * 局部变形
+    endif
+
+    * ---- 6. 结果输出 ----
+    if (flagDis or flageDev)
+        * NG：输出带偏差数值的图片
+        write_image(GrayImage, 'jpeg', 0, 'ng/' + StrIndex + '_' + StrDev + '_' + StrMean + '.jpeg')
+    else
+        * OK
+        write_image(GrayImage, 'jpeg', 0, 'ok/' + StrIndex + '.jpeg')
+    endif
+endfor
+```
+
+### 15.8 涉及的算子汇总
+
+| 类别 | 算子 | 在本案例中的作用 |
+|------|------|----------------|
+| 预处理 | `rgb1_to_gray`, `median_image` | 灰度转换与中值滤波去噪 |
+| 全局阈值 | `binary_threshold('smooth_histo')` | 自动阈值分割提取亮部区域 |
+| 局部阈值 | `var_threshold` | 自适应分割提取暗部内轮廓区域 |
+| 区域分析 | `connection`, `select_shape`, `select_shape_std` | 连通域拆分与多条件形状筛选 |
+| 形态学 | `erosion_circle`, `opening_circle`, `closing_circle` | 区域收缩、去噪、桥接断裂 |
+| 区域填充 | `fill_up`, `union1` | 孔洞填充与区域合并 |
+| 域操作 | `reduce_domain` | 限定处理区域，提高效率 |
+| 轮廓生成 | `gen_contour_region_xld` | 区域边界转换为亚像素轮廓 |
+| 轮廓比较 | `distance_contours_xld` | 计算两轮廓间的逐点距离 |
+| 属性提取 | `get_contour_attrib_xld` | 提取轮廓距离属性 |
+| 统计量 | `tuple_mean`, `tuple_deviation` | 计算距离数组的均值与标准差 |
+| 判决逻辑 | `if/elseif/endif`, `continue` | 基于统计量的分级判定与流程控制 |
+| 文件操作 | `list_files`, `tuple_regexp_select`, `write_image` | 批量图像读取与结果保存 |
+
+### 15.9 案例要点总结
+
+1. **双轮廓比较法**：通过比较同一产品的内、外轮廓来评估变形，不需要参考模板或标准图像，鲁棒性高
+2. **局部阈值 vs 全局阈值**：外轮廓用全局阈值（`binary_threshold`），内轮廓用局部阈值（`var_threshold`），因为内轮廓区域存在光照不均匀
+3. **均值与标准差联合判定**：均值反映整体偏移（大小边），标准差反映局部变形（凹凸），两者互补
+4. **腐蚀偏移量设计**：`erosion_circle(5)` 决定了内轮廓的搜索起始位置，该参数需根据产品工艺尺寸确定
+5. **空区域兜底**：`fill_up` 后仍无有效区域说明边缘断裂严重，直接判为边缘残缺缺陷
+6. **形态学参数的意义**：`opening_circle(75)` 去除外轮廓毛刺，`closing_circle(500)` 桥接内轮廓长断裂，参数大小由缺陷尺度决定
+
+---
 ---
 
 > **总结**：HALCON 传统算法的核心技术路线可概括为 **"预处理 -> 分割 -> 特征提取 -> 判定"** 四阶段流程。
