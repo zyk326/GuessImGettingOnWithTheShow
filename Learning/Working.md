@@ -1,6 +1,6 @@
 ﻿# 算法 DRI-Cover 实战攻略
 
-> **版本** v3.0 (专业修订版)  
+> **版本** v4.0 (案例扩充版)  
 > **来源** 内部项目经验总结  
 > **适用范围** 涵盖深度学习算法与 HALCON 传统算法两大技术路线
 
@@ -10,6 +10,7 @@
 
 - [**第一部分：深度学习算法**](#第一部分深度学习算法)
 - [**第二部分：HALCON 传统算法**](#第二部分halcon传统算法)
+- [**第三部分：综合案例实战**](#第三部分综合案例实战)
 
 ---
 
@@ -470,8 +471,6 @@ class YOLO_API YOLOV11Seg { ... };
 12. [模板匹配（NCC + 形状匹配）](#12-模板匹配ncc--形状匹配)
 13. [霍夫直线检测](#13-霍夫直线检测)
 14. [HALCON 导出 C++](#14-halcon-导出-c)
-15. [综合案例：基于轮廓比较的大小边变形检测](#15-综合案例基于轮廓比较的大小边变形检测)
-
 ---
 
 ## 1. HALCON 基础语法
@@ -1154,8 +1153,21 @@ dev_display(Image)
 
 > **应用场景**：将 HALCON 原型算法部署至上位机软件系统中，实现产线级自动化检测应用。
 
+---
 
-## 15. 综合案例：基于轮廓比较的大小边变形检测
+# 第三部分：综合案例实战
+
+---
+
+## 目录（第三部分）
+
+15. [基于轮廓比较的大小边变形检测](#15-基于轮廓比较的大小边变形检测)
+16. [K1 空料检测案例](#16-k1-空料检测案例)
+17. [黑款物料检测案例](#17-黑款物料检测案例)
+18. [脚仔变形检测案例（测量法）](#18-脚仔变形检测案例测量法)
+
+
+## 15. 基于轮廓比较的大小边变形检测
 
 ### 15.1 项目背景与需求
 
@@ -1423,4 +1435,330 @@ endfor
 > **总结**：HALCON 传统算法的核心技术路线可概括为 **"预处理 -> 分割 -> 特征提取 -> 判定"** 四阶段流程。
 > 处理流程决策：首先评估是否需要灰度转换与图像增强；然后选择合适的分割策略（阈值分割、区域生长、分水岭算法）；最后依据分割结果决定后续形态学处理与特征筛选方案。
 > 具体而言，需进一步确认是否引入形态学处理、选取何种特征进行筛选，以及最终判定方式（形状特征、灰度特征或模板匹配）。
+
+
+
+---
+
+## 16. K1 空料检测案例
+
+---
+
+### 16.1 项目背景与需求
+
+K1 空料检测用于判断产品是否放置在检测工位上。核心需求是快速、可靠地判断有无物料，防止空料导致误报警或设备空跑。
+
+**检测目标**：区分"有料"与"空料"两种状态。
+
+---
+
+### 16.2 算法流程概览
+
+```
+输入图像 → RGB转灰度 → 阈值分割(0-213) → 连通域分析 → 计算最大面积 → 面积>100000? → OK/NG
+```
+
+整体流程非常简洁，核心思想是：有料时图像中会出现大面积的低灰度区域，通过面积阈值即可区分。
+
+---
+
+### 16.3 代码实现
+
+```hdevelop
+* 读取图像
+list_files ('D:/.../K1', ['files','follow_links'], ImageFiles)
+tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
+
+for Index := 0 to |ImageFiles| - 1 by 1
+    read_image (Image, ImageFiles[Index])
+
+    * 灰度转换
+    rgb1_to_gray (Image, GrayImage)
+
+    * 全局阈值分割（0-213）：提取深色区域
+    threshold (GrayImage, Regions, 0, 213)
+
+    * 连通域分析
+    connection (Regions, ConnectedRegions)
+
+    * 计算所有连通域面积
+    area_center (ConnectedRegions, Area, Row, Column)
+
+    * 取最大面积
+    tuple_max (Area, Max)
+
+    * 面积判定：>100000 判为有料（OK），否则空料（NG）
+    dev_display (Image)
+    if (Max > 100000)
+        disp_text (WindowHandle, 'ok', 'window', 12, 12, 'black', [], [])
+    else
+        disp_text (WindowHandle, 'ng', 'window', 12, 12, 'black', [], [])
+    endif
+
+    stop()
+endfor
+```
+
+---
+
+### 16.4 涉及的算子汇总
+
+| 类别 | 算子 | 在本案例中的作用 |
+|------|------|----------------|
+| 预处理 | `rgb1_to_gray` | 彩色图像转灰度，简化处理 |
+| 全局阈值 | `threshold(0, 213)` | 提取深色物料区域（有料时大面积深色） |
+| 区域分析 | `connection`, `area_center`, `tuple_max` | 拆分连通域并计算最大面积 |
+| 显示 | `dev_display`, `disp_text` | 显示图像和检测结果 |
+
+---
+
+### 16.5 案例要点总结
+
+1. **极简流程**：本案例是目前最简洁的空料检测方案，仅用 6 个核心算子即可完成
+2. **阈值选择**：`threshold(0, 213)` 的阈值需根据实际打光情况微调，建议在产线上用多张样本统计灰度分布
+3. **面积阈值**：`100000` 是经验值，取决于图像分辨率与物料在画面中的占比，可根据实际测试调整
+4. **局限性**：该方案假设有料时画面中大部分区域被物料覆盖；若物料尺寸较小或背景复杂，需增加 ROI 限定或改用其他方案
+5. **部署建议**：空料检测通常作为前级安全校验，要求极高的可靠性，建议加上连续多帧确认逻辑，避免单帧误判
+
+---
+
+## 17. 黑款物料检测案例
+
+---
+
+### 17.1 项目背景与需求
+
+黑款物料检测用于识别黑色橡胶/塑料类物料区域。黑色物料在图像中通常表现为特定灰度范围内的区域，但由于材质反光特性不同，区域可能呈现破碎不连续的特点。
+
+**检测目标**：提取黑色物料区域，计算其面积/占比以判定物料是否存在、位置是否正确。
+
+---
+
+### 17.2 算法流程概览
+
+```
+输入图像 → RGB转灰度 → 阈值分割(90-103) → 闭运算(closing_circle 5) → 连通域分析 → 计算最大面积
+```
+
+核心思路：利用黑色物料在特定灰度范围内的特性进行分割，通过闭运算修复因反光导致的区域断裂。
+
+---
+
+### 17.3 代码实现
+
+```hdevelop
+* 读取图像
+list_files ('D:/.../黑款物料', ['files','follow_links'], ImageFiles)
+tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
+
+for Index := 0 to |ImageFiles| - 1 by 1
+    read_image (Image, ImageFiles[Index])
+
+    * 灰度转换
+    rgb1_to_gray (Image, GrayImage)
+
+    * 阈值分割：提取灰度值 90-103 的黑色物料区域
+    threshold (GrayImage, Regions, 90, 103)
+
+    * 闭运算（半径5）：填充物料表面的微小断裂
+    closing_circle (Regions, RegionClosing, 5)
+
+    * 连通域分析
+    connection (RegionClosing, ConnectedRegions)
+
+    * 计算各区域面积
+    area_center (ConnectedRegions, Area, Row, Column)
+
+    * 取最大面积（用于后续判定）
+    tuple_max (Area, Max)
+
+    stop()
+endfor
+```
+
+---
+
+### 17.4 涉及的算子汇总
+
+| 类别 | 算子 | 在本案例中的作用 |
+|------|------|----------------|
+| 预处理 | `rgb1_to_gray` | 彩色转灰度，降低数据维度 |
+| 全局阈值 | `threshold(90, 103)` | 提取特定灰度范围内的黑色物料区域 |
+| 形态学 | `closing_circle(5)` | 闭运算填充物料表面反光导致的细小断裂 |
+| 区域分析 | `connection`, `area_center`, `tuple_max` | 拆分连通域并计算最大区域面积 |
+
+---
+
+### 17.5 案例要点总结
+
+1. **阈值针对性**：黑色物料在灰度图像中灰度值偏低（90-103），该范围需根据实际打光条件标定，不同光照下灰度分布会有偏移
+2. **闭运算的关键作用**：`closing_circle(5)` 是本案例最关键的步骤——黑色物料表面常因反光出现高光点，导致分割后区域破碎，闭运算通过先膨胀后腐蚀桥接断裂区域
+3. **结构元素大小**：`closing_circle(5)` 的半径 5 是针对细小断裂的经验值，若断裂较宽需增大半径，但过大会合并不应连接的相邻区域
+4. **拓展应用**：可将此方案泛化用于黑色胶圈检测、黑色密封条定位、黑色塑料件缺陷检测等场景
+5. **改进方向**：若光照不均匀导致同一物料上灰度值有较大差异，可考虑使用局部阈值（`var_threshold`）替代全局阈值
+
+---
+
+## 18. 脚仔变形检测案例（测量法）
+
+---
+
+### 18.1 项目背景与需求
+
+脚仔（Leg）是产品上的支撑结构，变形会影响装配精度。本案例采用基于角度测量的方法替代传统骨架方向筛选，通过计算"本体底线"与"脚仔长边"之间的夹角来量化变形程度。
+
+**检测目标**：检测脚仔是否变形，以本体底线与脚仔之间的夹角作为量化指标。
+
+---
+
+### 18.2 算法流程概览
+
+```
+输入图像 → 中值滤波 → 阈值分割(0-31) → 填充 → 闭运算 → 开运算分离本体
+    ├─ 本体部分: 最小外接矩形 → 取底部最宽两点 → 生成底线
+    └─ 脚仔部分: 连通域 → 形状筛选 → 最小外接矩形 → 取长边
+                         ↓
+              计算底线与脚仔长边的夹角 → 取锐角 → 判定
+```
+
+核心创新：从"找脚仔角度"转变为"算本体与脚仔的夹角"，通过几何测量量化变形。
+
+---
+
+### 18.3 代码实现
+
+```hdevelop
+gen_empty_obj (EmptyObject)
+gen_empty_region (EmptyRegion)
+
+* 读取图像
+list_files ('D:/.../脚仔变形-1', ['files','follow_links'], ImageFiles)
+tuple_regexp_select (ImageFiles, ['\\.(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima|hobj)$','ignore_case'], ImageFiles)
+
+for Index := 0 to |ImageFiles| - 1 by 1
+    read_image (Image1, ImageFiles[Index])
+
+    * ---- 1. 预处理 ----
+    median_image (Image1, Image, 'circle', 1, 'mirrored')
+    threshold (Image, Regions, 0, 31)
+    fill_up (Regions, RegionFillUp)
+    closing_circle (RegionFillUp, RegionClosing, 20)
+
+    * ---- 2. 分离本体 ----
+    opening_rectangle1 (RegionClosing, RegionOpening, 45, 45)
+    select_shape (RegionOpening, RegionOpening, 'area', 'and', 100000, 99999999)
+
+    * 空料判断
+    if (RegionOpening == EmptyObject or RegionOpening == EmptyRegion)
+        * 没有提取到本体，可能是空料
+        stop()
+        continue
+    endif
+
+    * 提取脚仔区域（总体 - 本体 = 脚仔）
+    difference (RegionClosing, RegionOpening, RegionDifference)
+
+    * ========== 处理本体部分 ==========
+    * 获取最小外接矩形
+    smallest_rectangle2 (RegionOpening, Row, Column, Phi, Length1, Length2)
+    * 生成矩形轮廓并提取角点
+    gen_rectangle2_contour_xld (Rect, Row, Column, Phi, Length1, Length2)
+    get_contour_xld (Rect, Rows0, Cols0)
+    * 按行坐标排序，取底部两个点（行坐标最大）
+    tuple_sort_index (Rows0, Indices)
+    BottomIdx := [Indices[|Indices| - 1], Indices[|Indices| - 2]]
+    * 生成本体底线
+    gen_contour_polygon_xld (BottomLine, [Rows0[BottomIdx[0]], Rows0[BottomIdx[1]]], [Cols0[BottomIdx[0]], Cols0[BottomIdx[1]]])
+
+    * ========== 处理脚仔部分 ==========
+    * 开运算去噪
+    opening_rectangle1 (RegionDifference, RegionOpeningJ, 4, 4)
+    connection (RegionOpeningJ, ConnectedRegions)
+    * 筛选面积大于 1500 的区域
+    select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 1500, 99999)
+
+    * 未提取到脚仔则跳过
+    if (SelectedRegions == EmptyObject or SelectedRegions == EmptyRegion)
+        stop()
+        continue
+    endif
+
+    * 获取脚仔的最小外接矩形
+    smallest_rectangle2 (SelectedRegions, Row, Column, Phi, Length1, Length2)
+    * 生成矩形轮廓并提取四个角点
+    gen_rectangle2_contour_xld (Rect, Row, Column, Phi, Length1, Length2)
+    get_contour_xld (Rect, Rows, Cols)
+    FourRows := Rows[0:3]
+    FourCols := Cols[0:3]
+
+    * 计算四条边长，找到长边
+    Edges := []
+    for i := 0 to 3 by 1
+        j := (i + 1) % 4
+        dr := FourRows[i] - FourRows[j]
+        dc := FourCols[i] - FourCols[j]
+        distance := sqrt(dr*dr + dc*dc)
+        Edges := [Edges, distance]
+    endfor
+    tuple_sort_index (Edges, Indices)
+    LongEdgeIndex := Indices[2]  * 取第一条长边
+    StartIdx := LongEdgeIndex
+    EndIdx := (StartIdx + 1) % 4
+    * 用长边端点生成方向线
+    gen_contour_polygon_xld (DirectionLine, [FourRows[StartIdx], FourRows[EndIdx]], [FourCols[StartIdx], FourCols[EndIdx]])
+
+    * ========== 计算夹角 ==========
+    angle_ll (Rows0[BottomIdx[0]], Cols0[BottomIdx[0]], Rows0[BottomIdx[1]], Cols0[BottomIdx[1]], FourRows[StartIdx], FourCols[StartIdx], FourRows[EndIdx], FourCols[EndIdx], AngleRad)
+
+    * 转为角度并取锐角
+    AngleDeg := deg(abs(AngleRad))
+    if (AngleDeg > 90)
+        AngleDeg := 180 - AngleDeg
+    endif
+
+    stop()
+endfor
+```
+
+---
+
+### 18.4 涉及的算子汇总
+
+| 类别 | 算子 | 在本案例中的作用 |
+|------|------|----------------|
+| 预处理 | `median_image` | 中值滤波去噪，保留边缘信息 |
+| 全局阈值 | `threshold(0, 31)` | 提取深色区域（本体+脚仔） |
+| 区域填充 | `fill_up` | 填充内部孔洞，获得完整区域 |
+| 形态学 | `closing_circle(20)`, `opening_rectangle1` | 闭运算桥接断裂，开运算分离本体与脚仔 |
+| 区域运算 | `difference` | 总体区域减本体区域 = 脚仔区域 |
+| 形状筛选 | `select_shape('area')` | 按面积筛选本体和脚仔 |
+| 几何分析 | `smallest_rectangle2` | 获取区域的最小外接矩形（带方向角） |
+| 轮廓生成 | `gen_rectangle2_contour_xld`, `gen_contour_polygon_xld` | 生成矩形轮廓和直线轮廓 |
+| 轮廓点提取 | `get_contour_xld` | 提取轮廓上的所有点坐标 |
+| 元组操作 | `tuple_sort_index` | 排序找到底部点和长边 |
+| 角度计算 | `angle_ll` | 计算两直线之间的夹角 |
+| 角度转换 | `deg` | 弧度转角度 |
+| 几何逻辑 | `if (AngleDeg > 90)` | 取锐角（补齐到 180 减去钝角） |
+| 区域运算 | `connection` | 连通域拆分脚仔 |
+| 循环 | `for` 循环遍历 | 计算四边形的四条边长 |
+
+---
+
+### 18.5 案例要点总结
+
+1. **测量法替代骨架法**：与原始的脚仔.hdev（使用骨架 + 方向筛选）不同，本案例采用**几何测量法**，通过计算本体底线与脚仔长边的夹角来量化变形，结果更直观、可解释性更强
+
+2. **本体分离策略**：使用 `opening_rectangle1(45, 45)` 将本体从更大的区域中分离出来，矩形核的大小取决于本体与脚仔之间的宽度差，需根据实际产品尺寸调整
+
+3. **底线选取逻辑**：通过 `smallest_rectangle2` 获取最小外接矩形后，提取四个角点，按行坐标排序取最大的两个点作为底部两点。这假设了产品在图像中大致水平放置
+
+4. **脚仔方向提取**：通过最小外接矩形的四条边计算长度，取最长边作为脚仔的方向线。这种方法的前提是脚仔近似矩形，且长边方向代表脚仔的延伸方向
+
+5. **锐角处理**：`angle_ll` 计算的是有向角，可能为钝角，通过 `if (AngleDeg > 90) AngleDeg := 180 - AngleDeg` 补齐到锐角，使结果始终在 0-90 度范围内
+
+6. **空料与严重变形兜底**：两处兜底检查（本体空料跳过和脚仔未检出跳过）确保算法在异常情况下不会崩溃
+
+7. **部署优化**：代码注释中有提示"在部署的时候要把画线的部分注释掉"，说明显示操作用于调试，正式部署时应移除或条件编译
+
+---
 
