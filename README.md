@@ -50,19 +50,28 @@
 
 ---
 
-<!-- 底部：极简波浪 + 呼吸动效文字 -->
+<!-- 底部：动效波浪区块 + 颜色渐变呼吸文字 -->
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=soft&color=auto&height=50&section=footer&text=&fontSize=0" width="100%">
+  <img src="https://capsule-render.vercel.app/api?type=soft&color=auto&height=50&section=footer&text=&fontSize=0" width="100%" style="animation: gentleFloat 6s ease-in-out infinite; display: block;">
 </p>
 
 <p align="center">
-  <em style="animation: gentlePulse 3s ease-in-out infinite; display: inline-block;">愿平静的力量长盛不息</em>
+  <em style="animation: colorBreathing 4s ease-in-out infinite; display: inline-block; font-style: normal; font-weight: 450;">愿平静的力量长盛不息</em>
 </p>
 
 <style>
-  @keyframes gentlePulse {
-    0% { opacity: 0.6; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.02); }
-    100% { opacity: 0.6; transform: scale(1); }
+  /* 波浪区块上下浮动 + 轻微缩放 */
+  @keyframes gentleFloat {
+    0% { transform: translateY(0px) scale(1); opacity: 0.8; }
+    50% { transform: translateY(-4px) scale(1.01); opacity: 1; }
+    100% { transform: translateY(0px) scale(1); opacity: 0.8; }
+  }
+  
+  /* 文字颜色渐变呼吸效果（柔和过渡于三种低饱和色调） */
+  @keyframes colorBreathing {
+    0% { color: #6B9E8A; text-shadow: 0 0 0px rgba(107,158,138,0); }
+    33% { color: #8D9AAF; text-shadow: 0 0 2px rgba(141,154,175,0.2); }
+    66% { color: #C0A36E; text-shadow: 0 0 2px rgba(192,163,110,0.1); }
+    100% { color: #6B9E8A; text-shadow: 0 0 0px rgba(107,158,138,0); }
   }
 </style>
