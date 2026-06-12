@@ -8,6 +8,11 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=20&duration=3000&pause=800&color=5B8CBF&center=true&vCenter=true&width=700&lines=%F0%9F%A7%A0+Machine+Learning+%26+Deep+Learning;%F0%9F%93%8A+Algorithm+Engineer+%7C+C%2B%2B+%7C+PyTorch;%F0%9F%93%B8+Photographer+%7C+Music+Producer;%E2%9C%A8+Always+getting+on+with+the+show" alt="Typing SVG">
 </p>
 
+<!-- 经典模式按钮（精致胶囊） -->
+<p align="center">
+  <a href="./README-simple.md" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;">← 经典模式</a>
+</p>
+
 ---
 
 ## 人工智能 · 深度学习
@@ -45,11 +50,19 @@
 
 ---
 
-<!-- 底部：极简波浪 + 有深意的句子 -->
+<!-- 底部：极简波浪 + 呼吸动效文字 -->
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=soft&color=auto&height=50&section=footer&text=&fontSize=0" width="100%">
 </p>
 
 <p align="center">
-  <em>愿平静的力量长盛不息</em>
+  <em style="animation: gentlePulse 3s ease-in-out infinite; display: inline-block;">愿平静的力量长盛不息</em>
 </p>
+
+<style>
+  @keyframes gentlePulse {
+    0% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 0.6; transform: scale(1); }
+  }
+</style>
