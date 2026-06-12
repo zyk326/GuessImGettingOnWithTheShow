@@ -32,6 +32,8 @@
 
 [真的就业了-算法工程师](Learning/Working.md)
 
+[真的就业了-疑难杂症](Learning/Maobing.md)
+
 [Anomalib平台搭建](Learning/Anomalib.md)
 
 [C++进阶之路](Learning/WorkingLikeNiuma.md)
