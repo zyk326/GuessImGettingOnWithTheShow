@@ -11,7 +11,7 @@
 ---
 
 ## 人工智能 · 深度学习
-[![ML](https://img.shields.io/badge/机器学习-基石与实战-5E8EC6?style=for-the-badge&logo=activeloop&labelColor=F0F0F0)](./Learning/ML.md)
+[![ML](https://img.shields.io/badge/机器学习-基石与实战-5E8EC6?style=for-the-badge&logo=activeloop&labelColor=F0F0F0)](./Learning/ML.html)
 [![DL](https://img.shields.io/badge/深度学习-神经网络前沿-5E8EC6?style=for-the-badge&logo=python&labelColor=F0F0F0)](./Learning/DL.md)
 [![PyTorch](https://img.shields.io/badge/PyTorch-入门与动态图-5E8EC6?style=for-the-badge&logo=pytorch&labelColor=F0F0F0)](./Learning/PyT.md)
 
