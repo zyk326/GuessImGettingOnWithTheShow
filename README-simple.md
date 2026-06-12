@@ -1,7 +1,7 @@
 # GuessImGettingOnWithTheShow
 
 <p align="center">
-  <a href="./README.html" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;">回到花园 →</a>
+  <a href="./README.md" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;">回到花园 →</a>
 </p>
 
 [机器学习](Learning/ML.md)
