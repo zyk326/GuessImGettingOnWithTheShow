@@ -10,7 +10,7 @@
 
 <!-- 经典模式按钮（精致胶囊） -->
 <p align="center">
-  <a href="./README-simple.md" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;">← 经典模式</a>
+  <a href="./README-simple.html" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;">← 经典模式</a>
 </p>
 
 ---
