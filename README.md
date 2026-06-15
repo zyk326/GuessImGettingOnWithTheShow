@@ -74,4 +74,42 @@
     66% { color: #C0A36E; text-shadow: 0 0 2px rgba(192,163,110,0.1); }
     100% { color: #6B9E8A; text-shadow: 0 0 0px rgba(107,158,138,0); }
   }
+
+  /* ========= 新增：卡片（徽章图片）鼠标悬停呼吸效果 ========= */
+  /* 为所有卡片图片添加平滑过渡，保证离开时优雅恢复 */
+  a img {
+    transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1),
+                filter 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transform-origin: center;
+    /* 初始无阴影，保留原风格 */
+    filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0));
+  }
+
+  /* 悬停时激活呼吸动画：轻柔缩放 + 亮度微起伏 + 阴影波动 */
+  a:hover img {
+    animation: cardBreathe 1.8s ease-in-out infinite;
+  }
+
+  /* 卡片呼吸关键帧 —— 营造“活过来”的轻柔脉动感 */
+  @keyframes cardBreathe {
+    0% {
+      transform: scale(1);
+      filter: brightness(1) drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+    }
+    50% {
+      transform: scale(1.02);
+      filter: brightness(1.07) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.12));
+    }
+    100% {
+      transform: scale(1);
+      filter: brightness(1) drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+    }
+  }
+
+  /* 可选：为经典模式按钮也增加极简过渡，提升整体感（非卡片，仅做细腻优化） */
+  a[style*="background-color: #eef2f5"]:hover {
+    background-color: #e2e9ef !important;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+  }
 </style>
