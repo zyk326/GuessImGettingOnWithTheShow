@@ -8,9 +8,10 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=20&duration=3000&pause=800&color=5B8CBF&center=true&vCenter=true&width=700&lines=%F0%9F%A7%A0+Machine+Learning+%26+Deep+Learning;%F0%9F%93%8A+Algorithm+Engineer+%7C+C%2B%2B+%7C+PyTorch;%F0%9F%93%B8+Photographer+%7C+Music+Producer;%E2%9C%A8+Always+getting+on+with+the+show" alt="Typing SVG">
 </p>
 
-<!-- 经典模式按钮（精致胶囊） -->
+<!-- 模式切换按钮 -->
 <p align="center">
-  <a href="./README-simple.html" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;">← 经典模式</a>
+  <a href="./README-simple.html" style="display: inline-block; background-color: #eef2f5; color: #4a627a; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease; margin: 0 6px;">← 经典模式</a>
+  <a href="./README-cool.html" style="display: inline-block; background-color: #1a1d26; color: #8a9bb5; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease; margin: 0 6px; border: 1px solid rgba(138,155,181,0.15);">炫酷版 →</a>
 </p>
 
 ---
@@ -66,7 +67,7 @@
     50% { transform: translateY(-4px) scale(1.01); opacity: 1; }
     100% { transform: translateY(0px) scale(1); opacity: 0.8; }
   }
-  
+
   /* 文字颜色渐变呼吸效果（柔和过渡于三种低饱和色调） */
   @keyframes colorBreathing {
     0% { color: #6B9E8A; text-shadow: 0 0 0px rgba(107,158,138,0); }
@@ -75,22 +76,18 @@
     100% { color: #6B9E8A; text-shadow: 0 0 0px rgba(107,158,138,0); }
   }
 
-  /* ========= 新增：卡片（徽章图片）鼠标悬停呼吸效果 ========= */
-  /* 为所有卡片图片添加平滑过渡，保证离开时优雅恢复 */
+  /* 卡片（徽章图片）鼠标悬停呼吸效果 */
   a img {
     transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1),
                 filter 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     transform-origin: center;
-    /* 初始无阴影，保留原风格 */
     filter: brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0));
   }
 
-  /* 悬停时激活呼吸动画：轻柔缩放 + 亮度微起伏 + 阴影波动 */
   a:hover img {
     animation: cardBreathe 1.8s ease-in-out infinite;
   }
 
-  /* 卡片呼吸关键帧 —— 营造“活过来”的轻柔脉动感 */
   @keyframes cardBreathe {
     0% {
       transform: scale(1);
@@ -106,10 +103,20 @@
     }
   }
 
-  /* 可选：为经典模式按钮也增加极简过渡，提升整体感（非卡片，仅做细腻优化） */
-  a[style*="background-color: #eef2f5"]:hover {
+  /* 经典模式按钮悬停 */
+  a[href="./README-simple.html"]:hover {
     background-color: #e2e9ef !important;
     transform: translateY(-1px);
     transition: all 0.2s ease;
+  }
+
+  /* 炫酷版按钮悬停 */
+  a[href="./README-cool.html"]:hover {
+    background-color: #22263a !important;
+    border-color: rgba(94,142,198,0.4) !important;
+    color: #5E8EC6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 12px rgba(94,142,198,0.1);
+    transition: all 0.25s ease;
   }
 </style>
