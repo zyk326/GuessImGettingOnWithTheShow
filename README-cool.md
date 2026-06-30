@@ -58,6 +58,43 @@
 
   a, button, .card, .pill-btn { cursor: none; }
 
+  /* ===== 全局去除所有下划线 ===== */
+  a, a:hover, a:active, a:focus, a:visited {
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+    color: inherit;
+  }
+  a *, a *::before, a *::after,
+  a:hover *, a:active *, a:focus *, a:visited * {
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+  }
+  .card, .card:hover, .card:active, .card:focus,
+  .card *, .card:hover *, .card:active *, .card:focus * {
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+  }
+  .pill-btn, .pill-btn:hover, .pill-btn:active, .pill-btn:focus,
+  .pill-btn *, .pill-btn:hover *, .pill-btn:active * {
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+  }
+  button, button:hover, button:active, button:focus {
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+  }
+  ::selection {
+    background: rgba(167,139,250,0.25);
+    color: #fff;
+    text-decoration: none !important;
+    -webkit-text-decoration: none !important;
+  }
+  ::-moz-selection {
+    background: rgba(167,139,250,0.25);
+    color: #fff;
+    text-decoration: none !important;
+  }
+
   /* ===== Custom Cursor ===== */
   .cursor-dot {
     position: fixed;
@@ -109,13 +146,6 @@
     z-index: 99990;
   }
 
-  ::selection {
-    background: rgba(167,139,250,0.25);
-    color: #fff;
-  }
-
-  a { color: inherit; text-decoration: none; }
-
   /* ===== GALAXY CANVAS ===== */
   #galaxyCanvas {
     position: fixed;
@@ -124,7 +154,7 @@
     pointer-events: none;
   }
 
-  /* ===== NEBULA BLOBS — very subtle accent ===== */
+  /* ===== NEBULA BLOBS ===== */
   .nebula-layer {
     position: fixed;
     inset: 0;
@@ -954,7 +984,6 @@
 <script>
   /* ================================================================
      MILKY WAY — Third-Person Oblique View
-     Viewing angle ~25° above galactic plane, slowly rotating drift
      ================================================================ */
   (function () {
     const canvas = document.getElementById('galaxyCanvas');
@@ -962,7 +991,6 @@
     let W, H, diag;
     let time = 0;
 
-    /* Pre-built data arrays */
     let bgStars = [];
     let armStars = [];
     let coreStars = [];
@@ -970,12 +998,11 @@
     let nebulaClouds = [];
     let farFieldStars = [];
 
-    /* Tilt: how "face-on" we see the disc. 0 = edge-on, 1 = face-on */
     const TILT = 0.38;
-    const ROT_SPEED = 0.000012;       /* very slow rotation */
-    const VIEW_OFFSET_X = 0.48;       /* galaxy center position on screen */
+    const ROT_SPEED = 0.000012;
+    const VIEW_OFFSET_X = 0.48;
     const VIEW_OFFSET_Y = 0.44;
-    const DRIFT_AMPLITUDE = 30;       /* subtle parallax drift in px */
+    const DRIFT_AMPLITUDE = 30;
 
     function resize() {
       W = canvas.width = window.innerWidth;
@@ -988,7 +1015,6 @@
       bgStars = []; armStars = []; coreStars = [];
       dustLanes = []; nebulaClouds = []; farFieldStars = [];
 
-      /* --- Deep background field stars --- */
       for (let i = 0; i < 600; i++) {
         farFieldStars.push({
           x: Math.random() * W,
@@ -1001,7 +1027,6 @@
         });
       }
 
-      /* --- Foreground field stars (closer, brighter) --- */
       for (let i = 0; i < 120; i++) {
         bgStars.push({
           x: Math.random() * W,
@@ -1016,27 +1041,20 @@
       }
 
       const majorR = diag * 0.56;
-
-      /* --- Spiral arm stars (oblique projection) --- */
-      const numArms = 2;           /* main arms visible */
+      const numArms = 2;
       const starsPerArm = 500;
       for (let arm = 0; arm < numArms; arm++) {
         const armBase = (arm / numArms) * Math.PI * 2;
-        const extraArm = arm === 1 ? Math.PI * 0.6 : 0; /* asymmetry */
-
+        const extraArm = arm === 1 ? Math.PI * 0.6 : 0;
         for (let i = 0; i < starsPerArm; i++) {
-          const t = Math.random();                /* 0 = core, 1 = edge */
+          const t = Math.random();
           const spiralAngle = armBase + extraArm + t * Math.PI * 3.2;
           const spread = (8 + t * 65) * (0.6 + Math.random() * 0.8);
           const angle = spiralAngle + (Math.random() - 0.5) * 0.6;
           const radius = t * majorR + (Math.random() - 0.5) * spread;
           if (radius < 2) continue;
-
-          /* Oblique projection: squash Y */
           const projX = Math.cos(angle) * radius;
           const projY = Math.sin(angle) * radius * TILT;
-
-          /* Color: warm core → blue mid → blue-violet outer */
           let hue, sat, bri;
           if (t < 0.08) {
             hue = 32 + Math.random() * 18;
@@ -1051,19 +1069,17 @@
             sat = 25 + Math.random() * 40;
             bri = 68 + Math.random() * 22;
           }
-
           armStars.push({
             ox: projX, oy: projY,
             size: (1 - t * 0.4) * (Math.random() * 1.4 + 0.25),
             alpha: (1 - t * 0.5) * (0.12 + Math.random() * 0.5),
             hue, sat, bri,
-            depth: t,   /* for parallax */
+            depth: t,
             drift: (Math.random() - 0.5) * 0.00003
           });
         }
       }
 
-      /* --- Second, fainter arm set for depth --- */
       for (let arm = 0; arm < 2; arm++) {
         const armBase = (arm / 2) * Math.PI * 2 + Math.PI * 0.9;
         for (let i = 0; i < 200; i++) {
@@ -1086,7 +1102,6 @@
         }
       }
 
-      /* --- Dense galactic core --- */
       for (let i = 0; i < 250; i++) {
         const a = Math.random() * Math.PI * 2;
         const r = Math.pow(Math.random(), 2.2) * majorR * 0.07;
@@ -1102,7 +1117,6 @@
         });
       }
 
-      /* --- Dust lanes (dense gas filaments along arms) --- */
       for (let arm = 0; arm < 2; arm++) {
         const armBase = (arm / 2) * Math.PI * 2 + 0.1;
         const count = 45;
@@ -1123,7 +1137,6 @@
         }
       }
 
-      /* --- Nebula clouds (HII regions in arms) --- */
       for (let i = 0; i < 25; i++) {
         const arm = Math.floor(Math.random() * 2);
         const armBase = (arm / 2) * Math.PI * 2;
@@ -1141,7 +1154,6 @@
       }
     }
 
-    /* Core glow intensity pulses gently */
     function coreGlowPulse(t) {
       return 1 + Math.sin(t * 0.0003) * 0.12 + Math.sin(t * 0.00007) * 0.08;
     }
@@ -1150,19 +1162,16 @@
       ctx.clearRect(0, 0, W, H);
       time = ts;
 
-      /* Galaxy center on screen */
       const cx = W * VIEW_OFFSET_X;
       const cy = H * VIEW_OFFSET_Y;
       const globalRot = time * ROT_SPEED;
 
-      /* Subtle global drift for "third person floating" feel */
       const driftX = Math.sin(time * 0.00004) * DRIFT_AMPLITUDE;
       const driftY = Math.cos(time * 0.00003) * DRIFT_AMPLITUDE * 0.5;
 
       const gcx = cx + driftX;
       const gcy = cy + driftY;
 
-      /* ============ LAYER 1: Deep background stars ============ */
       for (const s of farFieldStars) {
         const tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
         ctx.beginPath();
@@ -1171,7 +1180,6 @@
         ctx.fill();
       }
 
-      /* ============ LAYER 2: Dust clouds (behind arm stars) ============ */
       ctx.globalCompositeOperation = 'lighter';
       for (const d of dustLanes) {
         const rotA = d.rot + globalRot * 0.6;
@@ -1192,7 +1200,6 @@
         ctx.restore();
       }
 
-      /* ============ LAYER 3: Nebula clouds ============ */
       for (const n of nebulaClouds) {
         const x = gcx + n.ox * Math.cos(globalRot) - n.oy * Math.sin(globalRot);
         const y = gcy + n.ox * Math.sin(globalRot) * 0.15 + n.oy * Math.cos(globalRot);
@@ -1206,18 +1213,14 @@
         ctx.fill();
       }
 
-      /* ============ LAYER 4: Spiral arm stars ============ */
       for (const s of armStars) {
         const a = globalRot + s.drift * time * 0.05;
         const x = gcx + s.ox * Math.cos(a) - s.oy * Math.sin(a);
         const y = gcy + s.ox * Math.sin(a) * 0.15 + s.oy * Math.cos(a);
-
         ctx.beginPath();
         ctx.arc(x, y, s.size, 0, Math.PI * 2);
         ctx.fillStyle = 'hsla(' + s.hue + ',' + s.sat + '%,' + s.bri + '%,' + s.alpha + ')';
         ctx.fill();
-
-        /* Subtle glow for brighter stars */
         if (s.size > 0.9 && s.alpha > 0.3) {
           ctx.beginPath();
           ctx.arc(x, y, s.size * 3, 0, Math.PI * 2);
@@ -1226,7 +1229,6 @@
         }
       }
 
-      /* ============ LAYER 5: Core stars ============ */
       const corePulse = coreGlowPulse(time);
       for (const s of coreStars) {
         const x = gcx + s.ox * Math.cos(globalRot * 0.5) - s.oy * Math.sin(globalRot * 0.5);
@@ -1237,11 +1239,8 @@
         ctx.fill();
       }
 
-      /* ============ LAYER 6: Core glow (elliptical, oblique) ============ */
       ctx.save();
       ctx.translate(gcx, gcy);
-
-      /* Main core glow */
       const cr1 = diag * 0.06 * corePulse;
       const cg1 = ctx.createRadialGradient(0, 0, 0, 0, 0, cr1);
       cg1.addColorStop(0, 'hsla(40,70%,92%,0.18)');
@@ -1255,7 +1254,6 @@
       ctx.fill();
       ctx.restore();
 
-      /* Wider core halo */
       ctx.save();
       ctx.translate(gcx, gcy);
       const cr2 = diag * 0.18 * corePulse;
@@ -1270,7 +1268,6 @@
       ctx.fill();
       ctx.restore();
 
-      /* ============ LAYER 7: Foreground bright stars ============ */
       ctx.globalCompositeOperation = 'source-over';
       for (const s of bgStars) {
         const tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
@@ -1279,8 +1276,6 @@
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fillStyle = 'hsla(' + s.hue + ',' + s.sat + '%,85%,' + a.toFixed(4) + ')';
         ctx.fill();
-
-        /* Cross-flare on brightest */
         if (s.r > 1.0 && s.a > 0.4) {
           ctx.strokeStyle = 'hsla(' + s.hue + ',' + s.sat + '%,90%,' + (a * 0.3).toFixed(4) + ')';
           ctx.lineWidth = 0.5;
@@ -1303,7 +1298,7 @@
   })();
 
   /* ========================================================
-     CUSTOM CURSOR — tight tracking
+     CUSTOM CURSOR
      ======================================================== */
   (function () {
     const dot = document.getElementById('cursorDot');
