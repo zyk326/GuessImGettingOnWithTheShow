@@ -35,6 +35,9 @@
     --glow-blue: rgba(107,154,232,0.35);
     --glow-violet: rgba(167,139,250,0.3);
     --glow-cyan: rgba(103,232,249,0.25);
+
+    /* GitHub Pages 顶部标题栏高度，按实际情况改这个值 */
+    --gh-header-h: 64px;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,11 +57,12 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     cursor: none;
+    /* 关键：不用 padding-top 把内容往下推，而是让 GitHub 标题栏盖在 hero 上面 */
+    padding-top: 0;
   }
 
   a, button, .card, .pill-btn { cursor: none; }
 
-  /* ===== 全局去除所有下划线 ===== */
   a, a:hover, a:active, a:focus, a:visited {
     text-decoration: none !important;
     -webkit-text-decoration: none !important;
@@ -200,16 +204,18 @@
   }
 
   /* ========================================
-     HERO SECTION
+     HERO — 从页面最顶部开始，GitHub 标题栏直接盖在上面
      ======================================== */
   .hero {
     position: relative;
+    /* 关键：hero 占满整个视口，从 top:0 开始 */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* 内容居中时往下偏移半个标题栏高度，视觉上真正居中 */
     justify-content: center;
-    padding: 2rem;
+    padding: calc(var(--gh-header-h) / 2) 2rem 2rem;
     overflow: hidden;
     z-index: 2;
   }
