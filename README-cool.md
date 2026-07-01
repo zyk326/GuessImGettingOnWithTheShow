@@ -36,8 +36,7 @@
     --glow-violet: rgba(167,139,250,0.3);
     --glow-cyan: rgba(103,232,249,0.25);
 
-    /* GitHub Pages 顶部标题栏高度，按实际情况改这个值 */
-    --gh-header-h: 64px;
+    --gh-header-h: 43px;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -57,7 +56,6 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     cursor: none;
-    /* 关键：不用 padding-top 把内容往下推，而是让 GitHub 标题栏盖在 hero 上面 */
     padding-top: 0;
   }
 
@@ -99,42 +97,56 @@
     text-decoration: none !important;
   }
 
-  /* ===== Custom Cursor ===== */
+  /* ===== Custom Cursor =====
+     策略：left/top + CSS transition 驱动跟随
+     CSS transition 引擎在合成线程运行，不阻塞主线程 JS
+  */
   .cursor-dot {
     position: fixed;
-    top: 0; left: 0;
-    width: 6px; height: 6px;
+    width: 6px;
+    height: 6px;
     background: #fff;
     border-radius: 50%;
     pointer-events: none;
     z-index: 99999;
     box-shadow: 0 0 6px 2px rgba(255,255,255,0.6), 0 0 20px 4px var(--glow-cyan);
-    transform: translate(-50%, -50%);
-    transition: width 0.2s, height 0.2s, background 0.2s, box-shadow 0.2s;
+    /* 合成层优化 */
+    will-change: left, top, width, height, background, box-shadow;
+    /* 跟手过渡：0.08s 几乎零延迟感，但仍比逐帧跳变平滑 */
+    transition:
+      left 0.08s cubic-bezier(0.25, 0.1, 0.25, 1),
+      top 0.08s cubic-bezier(0.25, 0.1, 0.25, 1),
+      width 0.2s ease, height 0.2s ease,
+      background 0.2s ease, box-shadow 0.2s ease;
   }
 
   .cursor-ring {
     position: fixed;
-    top: 0; left: 0;
-    width: 36px; height: 36px;
+    width: 36px;
+    height: 36px;
     border: 1.5px solid rgba(167,139,250,0.35);
     border-radius: 50%;
     pointer-events: none;
     z-index: 99998;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s cubic-bezier(0.2,0.8,0.3,1.2),
-                height 0.3s cubic-bezier(0.2,0.8,0.3,1.2),
-                border-color 0.25s;
+    will-change: left, top, width, height, border-color, background;
+    transition:
+      left 0.15s cubic-bezier(0.25, 0.1, 0.25, 1),
+      top 0.15s cubic-bezier(0.25, 0.1, 0.25, 1),
+      width 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.2),
+      height 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.2),
+      border-color 0.25s, background 0.25s;
   }
 
   .cursor-ring.hovering {
-    width: 56px; height: 56px;
+    width: 56px;
+    height: 56px;
     border-color: rgba(103,232,249,0.5);
     background: rgba(103,232,249,0.04);
   }
 
   .cursor-dot.hovering {
-    width: 10px; height: 10px;
+    width: 10px;
+    height: 10px;
     background: var(--cyan);
     box-shadow: 0 0 10px 4px rgba(103,232,249,0.6), 0 0 30px 8px rgba(103,232,249,0.2);
   }
@@ -204,18 +216,16 @@
   }
 
   /* ========================================
-     HERO — 从页面最顶部开始，GitHub 标题栏直接盖在上面
+     HERO
      ======================================== */
   .hero {
     position: relative;
-    /* 关键：hero 占满整个视口，从 top:0 开始 */
-    min-height: 100vh;
+    min-height: calc(100vh + var(--gh-header-h));
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* 内容居中时往下偏移半个标题栏高度，视觉上真正居中 */
     justify-content: center;
-    padding: calc(var(--gh-header-h) / 2) 2rem 2rem;
+    padding: calc(var(--gh-header-h) + 1rem) 2rem 5rem;
     overflow: hidden;
     z-index: 2;
   }
@@ -348,7 +358,7 @@
 
   .scroll-hint {
     position: absolute;
-    bottom: 2.5rem;
+    bottom: 3rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -395,9 +405,7 @@
     padding: 0 2rem 6rem;
   }
 
-  .section {
-    margin-bottom: 4rem;
-  }
+  .section { margin-bottom: 4rem; }
 
   .section-header {
     display: flex;
@@ -989,26 +997,22 @@
 
 <script>
   /* ================================================================
-     MILKY WAY — Third-Person Oblique View
+     MILKY WAY — 预计算三角函数优化版
      ================================================================ */
   (function () {
-    const canvas = document.getElementById('galaxyCanvas');
-    const ctx = canvas.getContext('2d');
-    let W, H, diag;
-    let time = 0;
+    var canvas = document.getElementById('galaxyCanvas');
+    var ctx = canvas.getContext('2d');
+    var W, H, diag;
+    var time = 0;
 
-    let bgStars = [];
-    let armStars = [];
-    let coreStars = [];
-    let dustLanes = [];
-    let nebulaClouds = [];
-    let farFieldStars = [];
+    var bgStars = [], armStars = [], coreStars = [];
+    var dustLanes = [], nebulaClouds = [], farFieldStars = [];
 
-    const TILT = 0.38;
-    const ROT_SPEED = 0.000012;
-    const VIEW_OFFSET_X = 0.48;
-    const VIEW_OFFSET_Y = 0.44;
-    const DRIFT_AMPLITUDE = 30;
+    var TILT = 0.38;
+    var ROT_SPEED = 0.000012;
+    var VIEW_OFFSET_X = 0.48;
+    var VIEW_OFFSET_Y = 0.44;
+    var DRIFT_AMPLITUDE = 30;
 
     function resize() {
       W = canvas.width = window.innerWidth;
@@ -1020,11 +1024,12 @@
     function buildScene() {
       bgStars = []; armStars = []; coreStars = [];
       dustLanes = []; nebulaClouds = []; farFieldStars = [];
+      var i, arm, t, angle, radius, projX, projY, hue, sat, bri;
+      var majorR = diag * 0.56;
 
-      for (let i = 0; i < 600; i++) {
+      for (i = 0; i < 600; i++) {
         farFieldStars.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
+          x: Math.random() * W, y: Math.random() * H,
           r: Math.random() * 0.9 + 0.15,
           a: 0.04 + Math.random() * 0.18,
           tw: 0.001 + Math.random() * 0.008,
@@ -1033,10 +1038,9 @@
         });
       }
 
-      for (let i = 0; i < 120; i++) {
+      for (i = 0; i < 120; i++) {
         bgStars.push({
-          x: Math.random() * W,
-          y: Math.random() * H,
+          x: Math.random() * W, y: Math.random() * H,
           r: Math.random() * 1.3 + 0.3,
           a: 0.15 + Math.random() * 0.45,
           tw: 0.002 + Math.random() * 0.012,
@@ -1046,250 +1050,186 @@
         });
       }
 
-      const majorR = diag * 0.56;
-      const numArms = 2;
-      const starsPerArm = 500;
-      for (let arm = 0; arm < numArms; arm++) {
-        const armBase = (arm / numArms) * Math.PI * 2;
-        const extraArm = arm === 1 ? Math.PI * 0.6 : 0;
-        for (let i = 0; i < starsPerArm; i++) {
-          const t = Math.random();
-          const spiralAngle = armBase + extraArm + t * Math.PI * 3.2;
-          const spread = (8 + t * 65) * (0.6 + Math.random() * 0.8);
-          const angle = spiralAngle + (Math.random() - 0.5) * 0.6;
-          const radius = t * majorR + (Math.random() - 0.5) * spread;
+      for (arm = 0; arm < 2; arm++) {
+        var armBase = (arm / 2) * Math.PI * 2;
+        var extraArm = arm === 1 ? Math.PI * 0.6 : 0;
+        for (i = 0; i < 500; i++) {
+          t = Math.random();
+          var spiralAngle = armBase + extraArm + t * Math.PI * 3.2;
+          var spread = (8 + t * 65) * (0.6 + Math.random() * 0.8);
+          angle = spiralAngle + (Math.random() - 0.5) * 0.6;
+          radius = t * majorR + (Math.random() - 0.5) * spread;
           if (radius < 2) continue;
-          const projX = Math.cos(angle) * radius;
-          const projY = Math.sin(angle) * radius * TILT;
-          let hue, sat, bri;
-          if (t < 0.08) {
-            hue = 32 + Math.random() * 18;
-            sat = 50 + Math.random() * 30;
-            bri = 85 + Math.random() * 15;
-          } else if (t < 0.3) {
-            hue = Math.random() < 0.3 ? 35 + Math.random() * 10 : 210 + Math.random() * 25;
-            sat = 35 + Math.random() * 40;
-            bri = 75 + Math.random() * 20;
-          } else {
-            hue = 210 + Math.random() * 45;
-            sat = 25 + Math.random() * 40;
-            bri = 68 + Math.random() * 22;
-          }
-          armStars.push({
-            ox: projX, oy: projY,
-            size: (1 - t * 0.4) * (Math.random() * 1.4 + 0.25),
-            alpha: (1 - t * 0.5) * (0.12 + Math.random() * 0.5),
-            hue, sat, bri,
-            depth: t,
-            drift: (Math.random() - 0.5) * 0.00003
-          });
+          projX = Math.cos(angle) * radius;
+          projY = Math.sin(angle) * radius * TILT;
+          if (t < 0.08) { hue = 32 + Math.random() * 18; sat = 50 + Math.random() * 30; bri = 85 + Math.random() * 15; }
+          else if (t < 0.3) { hue = Math.random() < 0.3 ? 35 + Math.random() * 10 : 210 + Math.random() * 25; sat = 35 + Math.random() * 40; bri = 75 + Math.random() * 20; }
+          else { hue = 210 + Math.random() * 45; sat = 25 + Math.random() * 40; bri = 68 + Math.random() * 22; }
+          armStars.push({ ox: projX, oy: projY, size: (1 - t * 0.4) * (Math.random() * 1.4 + 0.25), alpha: (1 - t * 0.5) * (0.12 + Math.random() * 0.5), hue: hue, sat: sat, bri: bri, depth: t, drift: (Math.random() - 0.5) * 0.00003 });
         }
       }
 
-      for (let arm = 0; arm < 2; arm++) {
-        const armBase = (arm / 2) * Math.PI * 2 + Math.PI * 0.9;
-        for (let i = 0; i < 200; i++) {
-          const t = Math.random();
-          const angle = armBase + t * Math.PI * 2.8 + (Math.random() - 0.5) * 0.8;
-          const radius = t * majorR * 0.92 + (Math.random() - 0.5) * 40;
+      for (arm = 0; arm < 2; arm++) {
+        var armBase2 = (arm / 2) * Math.PI * 2 + Math.PI * 0.9;
+        for (i = 0; i < 200; i++) {
+          t = Math.random();
+          angle = armBase2 + t * Math.PI * 2.8 + (Math.random() - 0.5) * 0.8;
+          radius = t * majorR * 0.92 + (Math.random() - 0.5) * 40;
           if (radius < 5) continue;
-          const projX = Math.cos(angle) * radius;
-          const projY = Math.sin(angle) * radius * TILT;
-          armStars.push({
-            ox: projX, oy: projY,
-            size: 0.3 + Math.random() * 0.6,
-            alpha: 0.04 + Math.random() * 0.12,
-            hue: 220 + Math.random() * 50,
-            sat: 30 + Math.random() * 30,
-            bri: 60 + Math.random() * 15,
-            depth: t,
-            drift: (Math.random() - 0.5) * 0.00003
-          });
+          armStars.push({ ox: Math.cos(angle) * radius, oy: Math.sin(angle) * radius * TILT, size: 0.3 + Math.random() * 0.6, alpha: 0.04 + Math.random() * 0.12, hue: 220 + Math.random() * 50, sat: 30 + Math.random() * 30, bri: 60 + Math.random() * 15, depth: t, drift: (Math.random() - 0.5) * 0.00003 });
         }
       }
 
-      for (let i = 0; i < 250; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const r = Math.pow(Math.random(), 2.2) * majorR * 0.07;
-        const projX = Math.cos(a) * r;
-        const projY = Math.sin(a) * r * TILT;
-        coreStars.push({
-          ox: projX, oy: projY,
-          size: Math.random() * 2.5 + 0.5,
-          alpha: 0.2 + Math.random() * 0.6,
-          hue: 35 + Math.random() * 20,
-          sat: 50 + Math.random() * 40,
-          bri: 80 + Math.random() * 20
-        });
+      for (i = 0; i < 250; i++) {
+        angle = Math.random() * Math.PI * 2;
+        radius = Math.pow(Math.random(), 2.2) * majorR * 0.07;
+        coreStars.push({ ox: Math.cos(angle) * radius, oy: Math.sin(angle) * radius * TILT, size: Math.random() * 2.5 + 0.5, alpha: 0.2 + Math.random() * 0.6, hue: 35 + Math.random() * 20, sat: 50 + Math.random() * 40, bri: 80 + Math.random() * 20 });
       }
 
-      for (let arm = 0; arm < 2; arm++) {
-        const armBase = (arm / 2) * Math.PI * 2 + 0.1;
-        const count = 45;
-        for (let i = 0; i < count; i++) {
-          const t = 0.15 + Math.random() * 0.7;
-          const angle = armBase + t * Math.PI * 3 + (Math.random() - 0.5) * 0.4;
-          const radius = t * majorR + (Math.random() - 0.5) * 50;
-          const projX = Math.cos(angle) * radius;
-          const projY = Math.sin(angle) * radius * TILT;
-          dustLanes.push({
-            ox: projX, oy: projY,
-            w: 30 + Math.random() * 100,
-            h: 8 + Math.random() * 25,
-            rot: angle + Math.random() * 0.3,
-            alpha: 0.008 + Math.random() * 0.015,
-            hue: [215, 240, 270, 300][Math.floor(Math.random() * 4)]
-          });
+      for (arm = 0; arm < 2; arm++) {
+        var armBase3 = (arm / 2) * Math.PI * 2 + 0.1;
+        for (i = 0; i < 45; i++) {
+          t = 0.15 + Math.random() * 0.7;
+          angle = armBase3 + t * Math.PI * 3 + (Math.random() - 0.5) * 0.4;
+          radius = t * majorR + (Math.random() - 0.5) * 50;
+          dustLanes.push({ ox: Math.cos(angle) * radius, oy: Math.sin(angle) * radius * TILT, w: 30 + Math.random() * 100, h: 8 + Math.random() * 25, rot: angle + Math.random() * 0.3, alpha: 0.008 + Math.random() * 0.015, hue: [215, 240, 270, 300][Math.floor(Math.random() * 4)] });
         }
       }
 
-      for (let i = 0; i < 25; i++) {
-        const arm = Math.floor(Math.random() * 2);
-        const armBase = (arm / 2) * Math.PI * 2;
-        const t = 0.2 + Math.random() * 0.6;
-        const angle = armBase + t * Math.PI * 3 + (Math.random() - 0.5) * 0.5;
-        const radius = t * majorR + (Math.random() - 0.5) * 40;
-        const projX = Math.cos(angle) * radius;
-        const projY = Math.sin(angle) * radius * TILT;
-        nebulaClouds.push({
-          ox: projX, oy: projY,
-          size: 20 + Math.random() * 70,
-          hue: [330, 280, 210, 30][Math.floor(Math.random() * 4)],
-          alpha: 0.012 + Math.random() * 0.025
-        });
+      for (i = 0; i < 25; i++) {
+        arm = Math.floor(Math.random() * 2);
+        t = 0.2 + Math.random() * 0.6;
+        angle = (arm / 2) * Math.PI * 2 + t * Math.PI * 3 + (Math.random() - 0.5) * 0.5;
+        radius = t * majorR + (Math.random() - 0.5) * 40;
+        nebulaClouds.push({ ox: Math.cos(angle) * radius, oy: Math.sin(angle) * radius * TILT, size: 20 + Math.random() * 70, hue: [330, 280, 210, 30][Math.floor(Math.random() * 4)], alpha: 0.012 + Math.random() * 0.025 });
       }
-    }
-
-    function coreGlowPulse(t) {
-      return 1 + Math.sin(t * 0.0003) * 0.12 + Math.sin(t * 0.00007) * 0.08;
     }
 
     function draw(ts) {
       ctx.clearRect(0, 0, W, H);
       time = ts;
 
-      const cx = W * VIEW_OFFSET_X;
-      const cy = H * VIEW_OFFSET_Y;
-      const globalRot = time * ROT_SPEED;
+      var cx = W * VIEW_OFFSET_X, cy = H * VIEW_OFFSET_Y;
+      var globalRot = time * ROT_SPEED;
+      var driftX = Math.sin(time * 0.00004) * DRIFT_AMPLITUDE;
+      var driftY = Math.cos(time * 0.00003) * DRIFT_AMPLITUDE * 0.5;
+      var gcx = cx + driftX, gcy = cy + driftY;
 
-      const driftX = Math.sin(time * 0.00004) * DRIFT_AMPLITUDE;
-      const driftY = Math.cos(time * 0.00003) * DRIFT_AMPLITUDE * 0.5;
+      // 预算三角函数
+      var cosGR = Math.cos(globalRot), sinGR = Math.sin(globalRot);
+      var sinGR15 = sinGR * 0.15;
+      var cosGR5 = Math.cos(globalRot * 0.5), sinGR5 = Math.sin(globalRot * 0.5);
+      var sinGR5_15 = sinGR5 * 0.15;
+      var corePulse = 1 + Math.sin(time * 0.0003) * 0.12 + Math.sin(time * 0.00007) * 0.08;
 
-      const gcx = cx + driftX;
-      const gcy = cy + driftY;
+      var i, s, d, n, x, y, tw, a, g, cr1, cr2, cg1, cg2, rotA, ca, sa;
 
-      for (const s of farFieldStars) {
-        const tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      // farFieldStars
+      for (i = 0; i < farFieldStars.length; i++) {
+        s = farFieldStars[i];
+        tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832);
         ctx.fillStyle = 'rgba(180,190,220,' + (s.a * (0.3 + tw * 0.7)).toFixed(4) + ')';
         ctx.fill();
       }
 
       ctx.globalCompositeOperation = 'lighter';
-      for (const d of dustLanes) {
-        const rotA = d.rot + globalRot * 0.6;
-        const x = gcx + d.ox * Math.cos(globalRot) - d.oy * Math.sin(globalRot);
-        const y = gcy + d.ox * Math.sin(globalRot) * 0.15 + d.oy * Math.cos(globalRot);
-        ctx.save();
-        ctx.translate(x, y);
+
+      // dustLanes
+      for (i = 0; i < dustLanes.length; i++) {
+        d = dustLanes[i];
+        x = gcx + d.ox * cosGR - d.oy * sinGR;
+        y = gcy + d.ox * sinGR15 + d.oy * cosGR;
+        ctx.save(); ctx.translate(x, y);
+        rotA = d.rot + globalRot * 0.6;
         ctx.rotate(rotA);
-        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, d.w);
+        g = ctx.createRadialGradient(0, 0, 0, 0, 0, d.w);
         g.addColorStop(0, 'hsla(' + d.hue + ',30%,45%,' + d.alpha + ')');
         g.addColorStop(0.5, 'hsla(' + d.hue + ',20%,35%,' + (d.alpha * 0.4) + ')');
         g.addColorStop(1, 'transparent');
         ctx.fillStyle = g;
         ctx.scale(1, d.h / d.w);
-        ctx.beginPath();
-        ctx.arc(0, 0, d.w, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 0, d.w, 0, 6.2832); ctx.fill();
         ctx.restore();
       }
 
-      for (const n of nebulaClouds) {
-        const x = gcx + n.ox * Math.cos(globalRot) - n.oy * Math.sin(globalRot);
-        const y = gcy + n.ox * Math.sin(globalRot) * 0.15 + n.oy * Math.cos(globalRot);
-        const g = ctx.createRadialGradient(x, y, 0, x, y, n.size);
+      // nebulaClouds
+      for (i = 0; i < nebulaClouds.length; i++) {
+        n = nebulaClouds[i];
+        x = gcx + n.ox * cosGR - n.oy * sinGR;
+        y = gcy + n.ox * sinGR15 + n.oy * cosGR;
+        g = ctx.createRadialGradient(x, y, 0, x, y, n.size);
         g.addColorStop(0, 'hsla(' + n.hue + ',50%,55%,' + n.alpha + ')');
         g.addColorStop(0.5, 'hsla(' + n.hue + ',40%,45%,' + (n.alpha * 0.35) + ')');
         g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(x, y, n.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, n.size, 0, 6.2832); ctx.fill();
       }
 
-      for (const s of armStars) {
-        const a = globalRot + s.drift * time * 0.05;
-        const x = gcx + s.ox * Math.cos(a) - s.oy * Math.sin(a);
-        const y = gcy + s.ox * Math.sin(a) * 0.15 + s.oy * Math.cos(a);
-        ctx.beginPath();
-        ctx.arc(x, y, s.size, 0, Math.PI * 2);
+      // armStars
+      for (i = 0; i < armStars.length; i++) {
+        s = armStars[i];
+        a = globalRot + s.drift * time * 0.05;
+        ca = Math.cos(a); sa = Math.sin(a);
+        x = gcx + s.ox * ca - s.oy * sa;
+        y = gcy + s.ox * sa * 0.15 + s.oy * ca;
+        ctx.beginPath(); ctx.arc(x, y, s.size, 0, 6.2832);
         ctx.fillStyle = 'hsla(' + s.hue + ',' + s.sat + '%,' + s.bri + '%,' + s.alpha + ')';
         ctx.fill();
         if (s.size > 0.9 && s.alpha > 0.3) {
-          ctx.beginPath();
-          ctx.arc(x, y, s.size * 3, 0, Math.PI * 2);
+          ctx.beginPath(); ctx.arc(x, y, s.size * 3, 0, 6.2832);
           ctx.fillStyle = 'hsla(' + s.hue + ',' + s.sat + '%,' + s.bri + '%,' + (s.alpha * 0.05).toFixed(4) + ')';
           ctx.fill();
         }
       }
 
-      const corePulse = coreGlowPulse(time);
-      for (const s of coreStars) {
-        const x = gcx + s.ox * Math.cos(globalRot * 0.5) - s.oy * Math.sin(globalRot * 0.5);
-        const y = gcy + s.ox * Math.sin(globalRot * 0.5) * 0.15 + s.oy * Math.cos(globalRot * 0.5);
-        ctx.beginPath();
-        ctx.arc(x, y, s.size * corePulse, 0, Math.PI * 2);
+      // coreStars
+      for (i = 0; i < coreStars.length; i++) {
+        s = coreStars[i];
+        x = gcx + s.ox * cosGR5 - s.oy * sinGR5;
+        y = gcy + s.ox * sinGR5_15 + s.oy * cosGR5;
+        ctx.beginPath(); ctx.arc(x, y, s.size * corePulse, 0, 6.2832);
         ctx.fillStyle = 'hsla(' + s.hue + ',' + s.sat + '%,' + s.bri + '%,' + s.alpha + ')';
         ctx.fill();
       }
 
-      ctx.save();
-      ctx.translate(gcx, gcy);
-      const cr1 = diag * 0.06 * corePulse;
-      const cg1 = ctx.createRadialGradient(0, 0, 0, 0, 0, cr1);
+      // Core glow
+      ctx.save(); ctx.translate(gcx, gcy);
+      cr1 = diag * 0.06 * corePulse;
+      cg1 = ctx.createRadialGradient(0, 0, 0, 0, 0, cr1);
       cg1.addColorStop(0, 'hsla(40,70%,92%,0.18)');
       cg1.addColorStop(0.25, 'hsla(35,60%,85%,0.09)');
       cg1.addColorStop(0.6, 'hsla(30,45%,70%,0.03)');
       cg1.addColorStop(1, 'transparent');
-      ctx.fillStyle = cg1;
-      ctx.scale(1, TILT);
-      ctx.beginPath();
-      ctx.arc(0, 0, cr1, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillStyle = cg1; ctx.scale(1, TILT);
+      ctx.beginPath(); ctx.arc(0, 0, cr1, 0, 6.2832); ctx.fill();
       ctx.restore();
 
-      ctx.save();
-      ctx.translate(gcx, gcy);
-      const cr2 = diag * 0.18 * corePulse;
-      const cg2 = ctx.createRadialGradient(0, 0, cr1 * 0.5, 0, 0, cr2);
+      ctx.save(); ctx.translate(gcx, gcy);
+      cr2 = diag * 0.18 * corePulse;
+      cg2 = ctx.createRadialGradient(0, 0, cr1 * 0.5, 0, 0, cr2);
       cg2.addColorStop(0, 'hsla(35,40%,70%,0.04)');
       cg2.addColorStop(0.5, 'hsla(280,30%,50%,0.015)');
       cg2.addColorStop(1, 'transparent');
-      ctx.fillStyle = cg2;
-      ctx.scale(1, TILT * 0.85);
-      ctx.beginPath();
-      ctx.arc(0, 0, cr2, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillStyle = cg2; ctx.scale(1, TILT * 0.85);
+      ctx.beginPath(); ctx.arc(0, 0, cr2, 0, 6.2832); ctx.fill();
       ctx.restore();
 
       ctx.globalCompositeOperation = 'source-over';
-      for (const s of bgStars) {
-        const tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
-        const a = s.a * (0.5 + tw * 0.5);
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+
+      // bgStars
+      for (i = 0; i < bgStars.length; i++) {
+        s = bgStars[i];
+        tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
+        a = s.a * (0.5 + tw * 0.5);
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832);
         ctx.fillStyle = 'hsla(' + s.hue + ',' + s.sat + '%,85%,' + a.toFixed(4) + ')';
         ctx.fill();
         if (s.r > 1.0 && s.a > 0.4) {
           ctx.strokeStyle = 'hsla(' + s.hue + ',' + s.sat + '%,90%,' + (a * 0.3).toFixed(4) + ')';
           ctx.lineWidth = 0.5;
           ctx.beginPath();
-          ctx.moveTo(s.x - s.r * 4, s.y);
-          ctx.lineTo(s.x + s.r * 4, s.y);
-          ctx.moveTo(s.x, s.y - s.r * 4);
-          ctx.lineTo(s.x, s.y + s.r * 4);
+          ctx.moveTo(s.x - s.r * 4, s.y); ctx.lineTo(s.x + s.r * 4, s.y);
+          ctx.moveTo(s.x, s.y - s.r * 4); ctx.lineTo(s.x, s.y + s.r * 4);
           ctx.stroke();
         }
       }
@@ -1305,28 +1245,52 @@
 
   /* ========================================================
      CUSTOM CURSOR
+     方案：left/top + CSS transition 直接驱动
+     CSS transition 在合成线程运行，不阻塞主线程 JS
      ======================================================== */
   (function () {
-    const dot = document.getElementById('cursorDot');
-    const ring = document.getElementById('cursorRing');
-    let mx = -100, my = -100, rx = -100, ry = -100;
+    var dot = document.getElementById('cursorDot');
+    var ring = document.getElementById('cursorRing');
+    if (!dot || !ring) return;
+
+    // 触控设备不启用
+    if ('ontouchstart' in window && navigator.maxTouchPoints > 0) return;
+
+    var visible = false;
 
     document.addEventListener('mousemove', function (e) {
-      mx = e.clientX;
-      my = e.clientY;
+      if (!visible) {
+        dot.style.opacity = '1';
+        ring.style.opacity = '1';
+        visible = true;
+      }
+      // 光标元素固定宽高，居中偏移 = 尺寸/2
+      // dot: 6px → -3, hover 10px → -5 (hover时JS会重设)
+      // ring: 36px → -18, hover 56px → -28
+      var isDotHovering = dot.classList.contains('hovering');
+      var isRingHovering = ring.classList.contains('hovering');
+      var dotOff = isDotHovering ? 5 : 3;
+      var ringOff = isRingHovering ? 28 : 18;
+
+      dot.style.left = (e.clientX - dotOff) + 'px';
+      dot.style.top  = (e.clientY - dotOff) + 'px';
+      ring.style.left = (e.clientX - ringOff) + 'px';
+      ring.style.top  = (e.clientY - ringOff) + 'px';
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', function () {
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+      visible = false;
     });
 
-    function tick() {
-      rx += (mx - rx) * 0.4;
-      ry += (my - ry) * 0.4;
-      dot.style.left = mx + 'px';
-      dot.style.top = my + 'px';
-      ring.style.left = rx + 'px';
-      ring.style.top = ry + 'px';
-      requestAnimationFrame(tick);
-    }
-    tick();
+    document.addEventListener('mouseenter', function () {
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+      visible = true;
+    });
 
+    // Hover 效果
     var interactives = document.querySelectorAll('a, .card, .pill-btn, button');
     interactives.forEach(function (el) {
       el.addEventListener('mouseenter', function () {
