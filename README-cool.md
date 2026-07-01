@@ -53,35 +53,11 @@
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    cursor: none;
   }
 
-  a, button, .card, .pill-btn { cursor: none; }
+  /* ===== Cursor: default everywhere, hide custom dot/ring via JS ===== */
+  body, a, button, .card, .pill-btn { cursor: none; }
 
-  a, a:hover, a:active, a:focus, a:visited {
-    text-decoration: none !important;
-    -webkit-text-decoration: none !important;
-    color: inherit;
-  }
-  a *, a *::before, a *::after,
-  a:hover *, a:active *, a:focus *, a:visited * {
-    text-decoration: none !important;
-    -webkit-text-decoration: none !important;
-  }
-  .card, .card:hover, .card:active, .card:focus,
-  .card *, .card:hover *, .card:active *, .card:focus * {
-    text-decoration: none !important;
-    -webkit-text-decoration: none !important;
-  }
-  .pill-btn, .pill-btn:hover, .pill-btn:active, .pill-btn:focus,
-  .pill-btn *, .pill-btn:hover *, .pill-btn:active * {
-    text-decoration: none !important;
-    -webkit-text-decoration: none !important;
-  }
-  button, button:hover, button:active, button:focus {
-    text-decoration: none !important;
-    -webkit-text-decoration: none !important;
-  }
   ::selection {
     background: rgba(167,139,250,0.25);
     color: #fff;
@@ -124,7 +100,7 @@
       top 0.15s cubic-bezier(0.25, 0.1, 0.25, 1),
       width 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.2),
       height 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.2),
-      border-color 0.25s, background 0.25s;
+      border-color 0.25s, background 0.25s, opacity 0.15s;
   }
 
   .cursor-ring.hovering {
@@ -139,11 +115,20 @@
     box-shadow: 0 0 10px 4px rgba(103,232,249,0.6), 0 0 30px 8px rgba(103,232,249,0.2);
   }
 
+  /* ===== Cursor press/select state: hide custom, show native ===== */
+  body.cursor-selecting { cursor: auto !important; }
+  body.cursor-selecting a,
+  body.cursor-selecting button,
+  body.cursor-selecting .card,
+  body.cursor-selecting .pill-btn { cursor: auto !important; }
+  body.cursor-selecting .cursor-dot,
+  body.cursor-selecting .cursor-ring { opacity: 0 !important; }
+
   /* Grain overlay */
   body::after {
     content: '';
     position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
     background-size: 128px 128px;
     opacity: 0.018;
     pointer-events: none;
@@ -213,7 +198,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1rem 2rem 5rem;
+    padding: 1rem 2rem 3rem;
     overflow: hidden;
     z-index: 2;
   }
@@ -346,20 +331,20 @@
 
   .scroll-hint {
     position: absolute;
-    bottom: 3rem;
+    bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     opacity: 0;
     animation: fadeUp 0.8s ease forwards 1.6s;
   }
 
   .scroll-hint span {
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-muted);
@@ -367,7 +352,7 @@
 
   .scroll-line {
     width: 1px;
-    height: 40px;
+    height: 32px;
     background: linear-gradient(to bottom, var(--violet), transparent);
     animation: scrollPulse 2s ease-in-out infinite;
   }
@@ -389,7 +374,7 @@
     position: relative;
     z-index: 2;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: -2rem auto 0;
     padding: 0 2rem 6rem;
   }
 
@@ -720,9 +705,8 @@
     .card-grid { grid-template-columns: 1fr; }
     .hero-title { font-size: 2rem; }
     .section-header { flex-wrap: wrap; }
-    .cursor-dot, .cursor-ring { display: none; }
-    body { cursor: auto; }
-    a, button, .card, .pill-btn { cursor: auto; }
+    .cursor-dot, .cursor-ring { display: none !important; }
+    body, a, button, .card, .pill-btn { cursor: auto; }
   }
 </style>
 </head>
@@ -1166,15 +1150,40 @@
   })();
 
   /* ========================================================
-     CUSTOM CURSOR
+     CUSTOM CURSOR — with press/select fix
      ======================================================== */
   (function () {
     var dot = document.getElementById('cursorDot');
     var ring = document.getElementById('cursorRing');
     if (!dot || !ring) return;
-    if ('ontouchstart' in window && navigator.maxTouchPoints > 0) return;
+    if ('ontouchstart' in window && navigator.maxTouchPoints > 0) {
+      dot.style.display = 'none';
+      ring.style.display = 'none';
+      return;
+    }
 
     var visible = false;
+    var mouseDown = false;
+    var hasDragged = false;
+    var downX = 0, downY = 0;
+
+    function setHovering(on) {
+      if (on) {
+        dot.classList.add('hovering');
+        ring.classList.add('hovering');
+      } else {
+        dot.classList.remove('hovering');
+        ring.classList.remove('hovering');
+      }
+    }
+
+    function enterSelectMode() {
+      document.body.classList.add('cursor-selecting');
+    }
+
+    function exitSelectMode() {
+      document.body.classList.remove('cursor-selecting');
+    }
 
     document.addEventListener('mousemove', function (e) {
       if (!visible) {
@@ -1182,16 +1191,48 @@
         ring.style.opacity = '1';
         visible = true;
       }
-      var isDotHovering = dot.classList.contains('hovering');
-      var isRingHovering = ring.classList.contains('hovering');
-      var dotOff = isDotHovering ? 5 : 3;
-      var ringOff = isRingHovering ? 28 : 18;
+
+      // If mouse is down, check if user has dragged => likely selecting text
+      if (mouseDown) {
+        var dx = e.clientX - downX;
+        var dy = e.clientY - downY;
+        if (!hasDragged && Math.sqrt(dx * dx + dy * dy) > 4) {
+          hasDragged = true;
+          enterSelectMode();
+        }
+      }
+
+      var isHovering = dot.classList.contains('hovering');
+      var dotOff = isHovering ? 5 : 3;
+      var ringOff = isHovering ? 28 : 18;
 
       dot.style.left = (e.clientX - dotOff) + 'px';
       dot.style.top  = (e.clientY - dotOff) + 'px';
       ring.style.left = (e.clientX - ringOff) + 'px';
       ring.style.top  = (e.clientY - ringOff) + 'px';
     }, { passive: true });
+
+    document.addEventListener('mousedown', function (e) {
+      mouseDown = true;
+      hasDragged = false;
+      downX = e.clientX;
+      downY = e.clientY;
+    });
+
+    document.addEventListener('mouseup', function () {
+      mouseDown = false;
+      hasDragged = false;
+      // Small delay so click events still register
+      setTimeout(exitSelectMode, 50);
+    });
+
+    // Also handle selection clearing
+    document.addEventListener('selectionchange', function () {
+      var sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        if (!mouseDown) exitSelectMode();
+      }
+    });
 
     document.addEventListener('mouseleave', function () {
       dot.style.opacity = '0';
@@ -1207,14 +1248,8 @@
 
     var interactives = document.querySelectorAll('a, .card, .pill-btn, button');
     interactives.forEach(function (el) {
-      el.addEventListener('mouseenter', function () {
-        dot.classList.add('hovering');
-        ring.classList.add('hovering');
-      });
-      el.addEventListener('mouseleave', function () {
-        dot.classList.remove('hovering');
-        ring.classList.remove('hovering');
-      });
+      el.addEventListener('mouseenter', function () { setHovering(true); });
+      el.addEventListener('mouseleave', function () { setHovering(false); });
     });
   })();
 
