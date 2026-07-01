@@ -36,7 +36,7 @@
     --glow-violet: rgba(167,139,250,0.3);
     --glow-cyan: rgba(103,232,249,0.25);
 
-    --gh-header-h: 43px;
+    --gh-header-h: 200px;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
