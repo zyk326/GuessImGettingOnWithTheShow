@@ -7,8 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@300;500;700&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --gh-header-h: 52px;
-
     --bg-deep: #020408;
     --bg-surface: #080b14;
     --bg-card: rgba(12, 15, 30, 0.65);
@@ -56,7 +54,6 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     cursor: none;
-    padding-top: var(--gh-header-h);
   }
 
   a, button, .card, .pill-btn { cursor: none; }
@@ -207,11 +204,11 @@
   }
 
   /* ========================================
-     HERO — 100vh - header = 刚好一屏
+     HERO
      ======================================== */
   .hero {
     position: relative;
-    min-height: calc(100vh - var(--gh-header-h));
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
