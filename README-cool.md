@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@300;500;700&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
+    --gh-header-h: 52px;
+
     --bg-deep: #020408;
     --bg-surface: #080b14;
     --bg-card: rgba(12, 15, 30, 0.65);
@@ -35,8 +37,6 @@
     --glow-blue: rgba(107,154,232,0.35);
     --glow-violet: rgba(167,139,250,0.3);
     --glow-cyan: rgba(103,232,249,0.25);
-
-    --gh-header-h: 1px;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,7 +56,7 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     cursor: none;
-    padding-top: 0;
+    padding-top: var(--gh-header-h);
   }
 
   a, button, .card, .pill-btn { cursor: none; }
@@ -97,22 +97,16 @@
     text-decoration: none !important;
   }
 
-  /* ===== Custom Cursor =====
-     策略：left/top + CSS transition 驱动跟随
-     CSS transition 引擎在合成线程运行，不阻塞主线程 JS
-  */
+  /* ===== Custom Cursor ===== */
   .cursor-dot {
     position: fixed;
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     background: #fff;
     border-radius: 50%;
     pointer-events: none;
     z-index: 99999;
     box-shadow: 0 0 6px 2px rgba(255,255,255,0.6), 0 0 20px 4px var(--glow-cyan);
-    /* 合成层优化 */
     will-change: left, top, width, height, background, box-shadow;
-    /* 跟手过渡：0.08s 几乎零延迟感，但仍比逐帧跳变平滑 */
     transition:
       left 0.08s cubic-bezier(0.25, 0.1, 0.25, 1),
       top 0.08s cubic-bezier(0.25, 0.1, 0.25, 1),
@@ -122,8 +116,7 @@
 
   .cursor-ring {
     position: fixed;
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     border: 1.5px solid rgba(167,139,250,0.35);
     border-radius: 50%;
     pointer-events: none;
@@ -138,15 +131,13 @@
   }
 
   .cursor-ring.hovering {
-    width: 56px;
-    height: 56px;
+    width: 56px; height: 56px;
     border-color: rgba(103,232,249,0.5);
     background: rgba(103,232,249,0.04);
   }
 
   .cursor-dot.hovering {
-    width: 10px;
-    height: 10px;
+    width: 10px; height: 10px;
     background: var(--cyan);
     box-shadow: 0 0 10px 4px rgba(103,232,249,0.6), 0 0 30px 8px rgba(103,232,249,0.2);
   }
@@ -216,16 +207,16 @@
   }
 
   /* ========================================
-     HERO
+     HERO — 100vh - header = 刚好一屏
      ======================================== */
   .hero {
     position: relative;
-    min-height: calc(100vh + var(--gh-header-h));
+    min-height: calc(100vh - var(--gh-header-h));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: calc(var(--gh-header-h) + 1rem) 2rem 5rem;
+    padding: 1rem 2rem 5rem;
     overflow: hidden;
     z-index: 2;
   }
@@ -524,7 +515,6 @@
     text-overflow: ellipsis;
   }
 
-  /* Color variants */
   .card[data-color="blue"]::before { background: var(--blue); box-shadow: 0 0 12px var(--glow-blue); }
   .card[data-color="blue"] .card-icon { background: rgba(107,154,232,0.12); color: var(--blue); }
   .card[data-color="blue"]:hover { border-color: rgba(107,154,232,0.25); }
@@ -791,24 +781,15 @@
     <div class="card-grid">
       <a class="card" data-color="blue" href="./Learning/ML.html">
         <div class="card-icon">&#x1F9E0;</div>
-        <div class="card-info">
-          <div class="card-name">机器学习</div>
-          <div class="card-sub">基石与实战</div>
-        </div>
+        <div class="card-info"><div class="card-name">机器学习</div><div class="card-sub">基石与实战</div></div>
       </a>
       <a class="card" data-color="blue" href="./Learning/DL.html">
         <div class="card-icon">&#x1F4CA;</div>
-        <div class="card-info">
-          <div class="card-name">深度学习</div>
-          <div class="card-sub">神经网络前沿</div>
-        </div>
+        <div class="card-info"><div class="card-name">深度学习</div><div class="card-sub">神经网络前沿</div></div>
       </a>
       <a class="card" data-color="blue" href="./Learning/PyT.html">
         <div class="card-icon">&#x1F525;</div>
-        <div class="card-info">
-          <div class="card-name">PyTorch</div>
-          <div class="card-sub">入门与动态图</div>
-        </div>
+        <div class="card-info"><div class="card-name">PyTorch</div><div class="card-sub">入门与动态图</div></div>
       </a>
     </div>
   </section>
@@ -822,31 +803,19 @@
     <div class="card-grid">
       <a class="card" data-color="green" href="./Learning/Python_Code.html">
         <div class="card-icon">&#x1F40D;</div>
-        <div class="card-info">
-          <div class="card-name">Python</div>
-          <div class="card-sub">进阶之路</div>
-        </div>
+        <div class="card-info"><div class="card-name">Python</div><div class="card-sub">进阶之路</div></div>
       </a>
       <a class="card" data-color="green" href="./Learning/WorkingLikeNiuma.html">
         <div class="card-icon">&#x2699;</div>
-        <div class="card-info">
-          <div class="card-name">C++</div>
-          <div class="card-sub">进阶 · 性能之巅</div>
-        </div>
+        <div class="card-info"><div class="card-name">C++</div><div class="card-sub">进阶 · 性能之巅</div></div>
       </a>
       <a class="card" data-color="green" href="./Learning/Search.html">
         <div class="card-icon">&#x1F50D;</div>
-        <div class="card-info">
-          <div class="card-name">搜索技术</div>
-          <div class="card-sub">变强的外挂</div>
-        </div>
+        <div class="card-info"><div class="card-name">搜索技术</div><div class="card-sub">变强的外挂</div></div>
       </a>
       <a class="card" data-color="green" href="./Learning/Anomalib.html">
         <div class="card-icon">&#x1F4E1;</div>
-        <div class="card-info">
-          <div class="card-name">Anomalib</div>
-          <div class="card-sub">异常检测实战</div>
-        </div>
+        <div class="card-info"><div class="card-name">Anomalib</div><div class="card-sub">异常检测实战</div></div>
       </a>
     </div>
   </section>
@@ -860,17 +829,11 @@
     <div class="card-grid">
       <a class="card" data-color="teal" href="./Learning/PostGraduate/Experimental_part.html">
         <div class="card-icon">&#x1F52C;</div>
-        <div class="card-info">
-          <div class="card-name">实验设计</div>
-          <div class="card-sub">科学逻辑闭环</div>
-        </div>
+        <div class="card-info"><div class="card-name">实验设计</div><div class="card-sub">科学逻辑闭环</div></div>
       </a>
       <a class="card" data-color="teal" href="./Learning/PostGraduate/Essay_notes.html">
         <div class="card-icon">&#x1F4D6;</div>
-        <div class="card-info">
-          <div class="card-name">论文笔记</div>
-          <div class="card-sub">文献拆解与重构</div>
-        </div>
+        <div class="card-info"><div class="card-name">论文笔记</div><div class="card-sub">文献拆解与重构</div></div>
       </a>
     </div>
   </section>
@@ -884,24 +847,15 @@
     <div class="card-grid">
       <a class="card" data-color="coral" href="./Learning/KAW.html">
         <div class="card-icon">&#x1F4AD;</div>
-        <div class="card-info">
-          <div class="card-name">认知与就业</div>
-          <div class="card-sub">职业破局思考</div>
-        </div>
+        <div class="card-info"><div class="card-name">认知与就业</div><div class="card-sub">职业破局思考</div></div>
       </a>
       <a class="card" data-color="coral" href="./Learning/Working.html">
         <div class="card-icon">&#x1F4BB;</div>
-        <div class="card-info">
-          <div class="card-name">真的就业了</div>
-          <div class="card-sub">算法工程师实战</div>
-        </div>
+        <div class="card-info"><div class="card-name">真的就业了</div><div class="card-sub">算法工程师实战</div></div>
       </a>
       <a class="card" data-color="coral" href="./Learning/Maobing.html">
         <div class="card-icon">&#x1F41B;</div>
-        <div class="card-info">
-          <div class="card-name">疑难杂症</div>
-          <div class="card-sub">职场排雷手册</div>
-        </div>
+        <div class="card-info"><div class="card-name">疑难杂症</div><div class="card-sub">职场排雷手册</div></div>
       </a>
     </div>
   </section>
@@ -915,31 +869,19 @@
     <div class="card-grid">
       <a class="card" data-color="peach" href="./Learning/Movie_History.html">
         <div class="card-icon">&#x1F3AC;</div>
-        <div class="card-info">
-          <div class="card-name">电影历史</div>
-          <div class="card-sub">百年光影叙事</div>
-        </div>
+        <div class="card-info"><div class="card-name">电影历史</div><div class="card-sub">百年光影叙事</div></div>
       </a>
       <a class="card" data-color="peach" href="./Learning/Cubase.html">
         <div class="card-icon">&#x1F3B5;</div>
-        <div class="card-info">
-          <div class="card-name">Cubase</div>
-          <div class="card-sub">进化为编曲人</div>
-        </div>
+        <div class="card-info"><div class="card-name">Cubase</div><div class="card-sub">进化为编曲人</div></div>
       </a>
       <a class="card" data-color="peach" href="./Learning/Camerist.html">
         <div class="card-icon">&#x1F4F7;</div>
-        <div class="card-info">
-          <div class="card-name">摄影师成长计划</div>
-          <div class="card-sub">光影美学</div>
-        </div>
+        <div class="card-info"><div class="card-name">摄影师成长计划</div><div class="card-sub">光影美学</div></div>
       </a>
       <a class="card" data-color="peach" href="./Learning/OutPlay.html">
         <div class="card-icon">&#x2708;</div>
-        <div class="card-info">
-          <div class="card-name">粗去玩</div>
-          <div class="card-sub">行迹与漫游灵感</div>
-        </div>
+        <div class="card-info"><div class="card-name">粗去玩</div><div class="card-sub">行迹与漫游灵感</div></div>
       </a>
     </div>
   </section>
@@ -953,17 +895,11 @@
     <div class="card-grid">
       <a class="card" data-color="gold" href="./Learning/Hidden_rules.html">
         <div class="card-icon">&#x1F4DC;</div>
-        <div class="card-info">
-          <div class="card-name">潜规则</div>
-          <div class="card-sub">中国历史上的真实游戏</div>
-        </div>
+        <div class="card-info"><div class="card-name">潜规则</div><div class="card-sub">中国历史上的真实游戏</div></div>
       </a>
       <a class="card" data-color="gold" href="./Learning/Those_Happenings_of_the_Ming_Dynasty.html">
         <div class="card-icon">&#x1F3DB;</div>
-        <div class="card-info">
-          <div class="card-name">明朝那些事儿</div>
-          <div class="card-sub">Those Happenings</div>
-        </div>
+        <div class="card-info"><div class="card-name">明朝那些事儿</div><div class="card-sub">Those Happenings</div></div>
       </a>
     </div>
   </section>
@@ -977,10 +913,7 @@
     <div class="card-grid">
       <a class="card" data-color="mint" href="./Learning/Self.html">
         <div class="card-icon">&#x1F4AC;</div>
-        <div class="card-info">
-          <div class="card-name">我能这么说吗</div>
-          <div class="card-sub">表达与觉察</div>
-        </div>
+        <div class="card-info"><div class="card-name">我能这么说吗</div><div class="card-sub">表达与觉察</div></div>
       </a>
     </div>
   </section>
@@ -997,7 +930,7 @@
 
 <script>
   /* ================================================================
-     MILKY WAY — 预计算三角函数优化版
+     MILKY WAY
      ================================================================ */
   (function () {
     var canvas = document.getElementById('galaxyCanvas');
@@ -1115,7 +1048,6 @@
       var driftY = Math.cos(time * 0.00003) * DRIFT_AMPLITUDE * 0.5;
       var gcx = cx + driftX, gcy = cy + driftY;
 
-      // 预算三角函数
       var cosGR = Math.cos(globalRot), sinGR = Math.sin(globalRot);
       var sinGR15 = sinGR * 0.15;
       var cosGR5 = Math.cos(globalRot * 0.5), sinGR5 = Math.sin(globalRot * 0.5);
@@ -1124,7 +1056,6 @@
 
       var i, s, d, n, x, y, tw, a, g, cr1, cr2, cg1, cg2, rotA, ca, sa;
 
-      // farFieldStars
       for (i = 0; i < farFieldStars.length; i++) {
         s = farFieldStars[i];
         tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
@@ -1135,7 +1066,6 @@
 
       ctx.globalCompositeOperation = 'lighter';
 
-      // dustLanes
       for (i = 0; i < dustLanes.length; i++) {
         d = dustLanes[i];
         x = gcx + d.ox * cosGR - d.oy * sinGR;
@@ -1153,7 +1083,6 @@
         ctx.restore();
       }
 
-      // nebulaClouds
       for (i = 0; i < nebulaClouds.length; i++) {
         n = nebulaClouds[i];
         x = gcx + n.ox * cosGR - n.oy * sinGR;
@@ -1165,7 +1094,6 @@
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, n.size, 0, 6.2832); ctx.fill();
       }
 
-      // armStars
       for (i = 0; i < armStars.length; i++) {
         s = armStars[i];
         a = globalRot + s.drift * time * 0.05;
@@ -1182,7 +1110,6 @@
         }
       }
 
-      // coreStars
       for (i = 0; i < coreStars.length; i++) {
         s = coreStars[i];
         x = gcx + s.ox * cosGR5 - s.oy * sinGR5;
@@ -1192,7 +1119,6 @@
         ctx.fill();
       }
 
-      // Core glow
       ctx.save(); ctx.translate(gcx, gcy);
       cr1 = diag * 0.06 * corePulse;
       cg1 = ctx.createRadialGradient(0, 0, 0, 0, 0, cr1);
@@ -1216,7 +1142,6 @@
 
       ctx.globalCompositeOperation = 'source-over';
 
-      // bgStars
       for (i = 0; i < bgStars.length; i++) {
         s = bgStars[i];
         tw = Math.sin(time * s.tw + s.ph) * 0.5 + 0.5;
@@ -1245,15 +1170,11 @@
 
   /* ========================================================
      CUSTOM CURSOR
-     方案：left/top + CSS transition 直接驱动
-     CSS transition 在合成线程运行，不阻塞主线程 JS
      ======================================================== */
   (function () {
     var dot = document.getElementById('cursorDot');
     var ring = document.getElementById('cursorRing');
     if (!dot || !ring) return;
-
-    // 触控设备不启用
     if ('ontouchstart' in window && navigator.maxTouchPoints > 0) return;
 
     var visible = false;
@@ -1264,9 +1185,6 @@
         ring.style.opacity = '1';
         visible = true;
       }
-      // 光标元素固定宽高，居中偏移 = 尺寸/2
-      // dot: 6px → -3, hover 10px → -5 (hover时JS会重设)
-      // ring: 36px → -18, hover 56px → -28
       var isDotHovering = dot.classList.contains('hovering');
       var isRingHovering = ring.classList.contains('hovering');
       var dotOff = isDotHovering ? 5 : 3;
@@ -1290,7 +1208,6 @@
       visible = true;
     });
 
-    // Hover 效果
     var interactives = document.querySelectorAll('a, .card, .pill-btn, button');
     interactives.forEach(function (el) {
       el.addEventListener('mouseenter', function () {
