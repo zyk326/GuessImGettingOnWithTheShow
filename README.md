@@ -45,6 +45,7 @@
 ## 历史 · 博弈与智识
 [![潜规则](https://img.shields.io/badge/潜规则-中国历史上的真实游戏-C0A36E?style=for-the-badge&logo=book&labelColor=F0F0F0)](./Learning/Hidden_rules.html)
 [![明朝那些事儿](https://img.shields.io/badge/明朝那些事儿-Those_Happenings-C0A36E?style=for-the-badge&logo=readthedocs&labelColor=F0F0F0)](./Learning/Those_Happenings_of_the_Ming_Dynasty.html)
+[![易经](https://img.shields.io/badge/易经-卜卦实例-C0A36E?style=for-the-badge&logo=readthedocs&labelColor=F0F0F0)](./Learning/YiJing.html)
 
 ## 自我 · 语言与边界
 [![自我表达](https://img.shields.io/badge/我能这么说吗-表达与觉察-6CC4B0?style=for-the-badge&logo=messenger&labelColor=F0F0F0)](./Learning/Self.html)

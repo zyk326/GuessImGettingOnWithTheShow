@@ -37,3 +37,5 @@
 [Anomalib平台搭建](Learning/Anomalib.md)
 
 [C++进阶之路](Learning/WorkingLikeNiuma.md)
+
+[易经-卜卦实例](Learning/YiJing.md)

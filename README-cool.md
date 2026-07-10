@@ -898,6 +898,11 @@
         <div class="card-icon">&#x1F3DB;</div>
         <div class="card-info"><div class="card-name">明朝那些事儿</div><div class="card-sub">Those Happenings</div></div>
       </a>
+      <!-- 新增易经卡片 -->
+      <a class="card" data-color="gold" href="./Learning/YiJing.html">
+        <div class="card-icon">☯</div>
+        <div class="card-info"><div class="card-name">易经</div><div class="card-sub">卜卦实例</div></div>
+      </a>
     </div>
   </section>
 
